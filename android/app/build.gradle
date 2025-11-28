@@ -1,0 +1,69 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+       id "org.jetbrains.kotlin.android" version "2.1.0"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+// ✅ DO NOT put google-services plugin here — it must be at the bottom
+
+android {
+    namespace = "com.example.debs_driver_app"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17" // ✅ Use string instead of enum
+    }
+
+    defaultConfig {
+        applicationId = "com.example.debs_driver_app"
+        minSdk = 23
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+        multiDexEnabled true // ✅ recommended for Firebase projects
+    }
+
+    buildTypes {
+        release {
+            // TODO: Add your own release signing config
+            signingConfig = signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+
+    // Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-messaging")
+  implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-storage")
+
+    // Google Maps (if you use it)
+    implementation "com.google.android.gms:play-services-maps:19.0.0"
+
+    // Optional: for multidex
+    implementation "androidx.multidex:multidex:2.0.1"
+}
+
+flutter {
+    source = "../.."
+}
+
+// ✅ Apply Google Services plugin at the bottom
+apply plugin: 'com.google.gms.google-services'

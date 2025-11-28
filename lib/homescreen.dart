@@ -1,0 +1,223 @@
+import 'package:debs_driver_app/Utils/color.dart';
+import 'package:debs_driver_app/Utils/sqldata.dart';
+import 'package:debs_driver_app/controller/ShiftListController.dart';
+import 'package:debs_driver_app/model/ShiftResponse.dart';
+import 'package:debs_driver_app/orders/OrdersListScreen.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
+import 'checkin/Shift_Checkin_Screen.dart';
+
+class Homescreen extends StatefulWidget {
+  const Homescreen({super.key});
+
+  @override
+  State<Homescreen> createState() => _HomescreenState();
+}
+
+class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
+  String? username;
+  String? token;
+  late TabController controller;
+  @override
+  void initState() {
+    super.initState();
+    loaddata();
+    controller = TabController(length: 2, initialIndex: 0, vsync: this);
+  }
+
+
+  Future<void> loaddata() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      username = prefs.getString('username');
+      token = prefs.getString('token');
+      getShiftList();
+    });
+
+  await DBHelper.instance.saveUser(username ?? '',token ?? '');
+  await DBHelper.instance.showuser();
+    getShiftList();
+  }
+
+  int selectedIndex = 0; // Keeps track of selected drawer item
+
+  // Drawer items data
+  final List<Map<String, dynamic>> drawerItems = [
+    {'icon': Icons.home, 'title': 'Home'},
+    {'icon': Icons.beach_access, 'title': 'Leaves'},
+    {'icon': Icons.access_time, 'title': 'Shifts'},
+    {'icon': Icons.account_balance_wallet, 'title': 'Wallet'},
+    {'icon': Icons.history, 'title': 'Order History'},
+    {'icon': Icons.assignment, 'title': 'Shift Summary'},
+    {'icon': Icons.report_problem, 'title': 'Report Issue'},
+    {'icon': Icons.lock, 'title': 'Change Password'},
+    {'icon': Icons.language, 'title': 'English/Arabic'},
+    {'icon': Icons.logout, 'title': 'Logout'},
+  ];
+  List names = ["Gokul", "helo", "loki"];
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: ColorTheme().colorPrimary,
+        title: Text(
+          "Allow Driver",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        leading: Builder(builder: (context) {
+          return IconButton(
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+            icon: Icon(Icons.menu),
+            color: Colors.white,
+          );
+        }),
+      ),
+      // drawer: Drawer(
+      //   child: SafeArea(
+      //     child: Column(
+      //       mainAxisAlignment: MainAxisAlignment.start,
+      //       crossAxisAlignment: CrossAxisAlignment.center,
+      //       children: [
+      //       GestureDetector(onTap: () {
+
+      //       },child: Text("title")),
+      //       Icon(Icons.abc_outlined)
+      //     ],),
+      //   ),
+      // ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            // Header
+            UserAccountsDrawerHeader(
+              margin: EdgeInsets.zero,
+              decoration: BoxDecoration(color: ColorTheme().colorPrimarydark,),
+              currentAccountPicture: Container(margin: EdgeInsets.only(bottom: 20),
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.person,
+                    color: ColorTheme().colorPrimary,
+                    size: 40,
+                  ),
+                ),
+              ),
+              
+          
+              accountName: Text("John Doe",style: TextStyle(fontSize: 20,fontWeight:FontWeight.bold),),
+              accountEmail: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("john.doe@example.com", style: TextStyle(fontSize: 14)),
+                  SizedBox(height: 4),
+                  Text("Driver ID: DR12345", style: TextStyle(fontSize: 14)),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+
+            // Drawer Items
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: drawerItems.length,
+                itemBuilder: (context, index) {
+                  final item = drawerItems[index];
+                  bool isSelected = selectedIndex == index;
+                  return ListTile(
+                    leading: Icon(item['icon'],
+                        color: isSelected
+                            ? Colors.white
+                            : ColorTheme().colorPrimary),
+                    title: Text(
+                      item['title'],
+                      style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.black),
+                    ),
+                    tileColor: isSelected ? ColorTheme().colorPrimary : null,
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                      });
+                      Navigator.pop(context); // Close the drawer
+                      // TODO: Add navigation logic here based on index
+                      print('Tapped: ${item['title']}');
+                    },
+                  );
+                },
+              ),
+            ),
+
+            // Footer
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("v1.0.0", style: TextStyle(color: Colors.black)),
+                  Text("Privacy Policy", style: TextStyle(color: Colors.black)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+
+      body: SafeArea(
+        child: Column(
+          children: [
+            Container(
+              color: ColorTheme().colorPrimary,
+              child: TabBar(
+                dividerColor: ColorTheme().colorPrimary,
+                controller: controller,
+                tabs: [
+                  Tab(
+                    child: Container(child: Text("Orders")),
+                  ),
+                  Tab(
+                    child: Text("Shifts"),
+                  )
+                ],
+                labelColor: Colors.white,
+                indicatorColor: Colors.white,
+                unselectedLabelColor: Colors.white60,
+              ),
+            ),
+            Expanded(
+              child: TabBarView(controller: controller, children: [
+                Center(
+                  child: Column(children: [
+                    SizedBox(height: 0),Expanded(child: OrdersListScreen())
+                  ],),
+                ),
+                Container(
+                  child: Column(children: [
+                    SizedBox(height: 0),
+                    Expanded(child: ShiftScheckinScreen()),
+                  ]),
+                )
+              ]),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Shiftlistcontroller shiftlistcontroller = Shiftlistcontroller();
+
+  ShiftListResponse? response;
+
+  void getShiftList() async {
+    response = await shiftlistcontroller.getShiftList('2025-10-08');
+  }
+}
