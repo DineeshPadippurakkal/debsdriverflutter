@@ -290,7 +290,7 @@ setState(() {
                           "assets/images/logo.png",
                           fit: BoxFit.fill,
                         ),
-                        Text("new qa"),
+                        Text(orderdetailResponse.data!.dropOffDetails!.name.toString()),
                         Spacer(),
                         IconButton(
                           onPressed: () {},

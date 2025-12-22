@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 class OrderDetailResponse { 
   bool? status;
   String? message;
@@ -148,7 +150,7 @@ class ItemsDetails {
   ItemsDetails.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     description = json['description'];
-    price = json['price'];
+    price = (json['price'] as num?)?.toDouble();
     quantity = json['quantity'];
   }
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:debs_driver_app/Utils/Utils.dart';
 import 'package:debs_driver_app/checkin/model/CheckinResponse.dart';
+import 'package:debs_driver_app/home/model/LogoutResponse.dart';
 import 'package:debs_driver_app/model/ShiftResponse.dart';
 
 import 'package:http/http.dart' as http;
@@ -36,7 +37,7 @@ class Shiftlistcontroller {
   Future<CheckinResponse?> callCheckin(int slotID, int shiftID) async {
     final url = Uri.parse("$baseUrl/driver/shifts/$shiftID/check-in");
     String? token = await Utils().getToken();
-    
+
     try {
       final response = await http.post(
         url,
@@ -54,6 +55,26 @@ class Shiftlistcontroller {
       print('this is the status code ${response.statusCode}');
       print('this is the status code ${response.body}');
       final jsondata = CheckinResponse.fromJson(jsonDecode(response.body));
+      return jsondata;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<LogoutResponse?> callLogoutApi() async {
+    try {
+      final url = Uri.parse("$baseUrl/logout");
+      String? token = await Utils().getToken();
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': '$token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      print('this is the status code ${response.body}');
+      final jsondata = LogoutResponse.fromJson(jsonDecode(response.body));
       return jsondata;
     } catch (e) {
       rethrow;

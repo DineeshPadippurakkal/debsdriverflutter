@@ -40,8 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
           await prefs.setString('token', response.data!.accessToken.toString());
           await prefs.setInt('driverID', response.data!.driverId);
           //-------------------
-
-          Navigator.push(
+clearTextfiled();
+          Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => Homescreen()));
         } else {
              ScaffoldMessenger.of(context).showSnackBar(
@@ -171,5 +171,13 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+  
+  void clearTextfiled() {
+    setState(() {
+      
+      _usernameController.text="";
+      _passwordController.text="";
+    });
   }
 }

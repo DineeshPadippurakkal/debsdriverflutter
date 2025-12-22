@@ -1,6 +1,8 @@
+import 'package:debs_driver_app/OrderHistory/view/OrderHistory.dart';
 import 'package:debs_driver_app/Utils/color.dart';
 import 'package:debs_driver_app/Utils/sqldata.dart';
 import 'package:debs_driver_app/controller/ShiftListController.dart';
+import 'package:debs_driver_app/login_screen.dart';
 import 'package:debs_driver_app/model/ShiftResponse.dart';
 import 'package:debs_driver_app/orders/OrdersListScreen.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +28,6 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
     controller = TabController(length: 2, initialIndex: 0, vsync: this);
   }
 
-
   Future<void> loaddata() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -36,8 +37,8 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
       getShiftList();
     });
 
-  await DBHelper.instance.saveUser(username ?? '',token ?? '');
-  await DBHelper.instance.showuser();
+    await DBHelper.instance.saveUser(username ?? '', token ?? '');
+    await DBHelper.instance.showuser();
     getShiftList();
   }
 
@@ -97,8 +98,11 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
             // Header
             UserAccountsDrawerHeader(
               margin: EdgeInsets.zero,
-              decoration: BoxDecoration(color: ColorTheme().colorPrimarydark,),
-              currentAccountPicture: Container(margin: EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: ColorTheme().colorPrimarydark,
+              ),
+              currentAccountPicture: Container(
+                margin: EdgeInsets.only(bottom: 20),
                 child: CircleAvatar(
                   backgroundColor: Colors.white,
                   child: Icon(
@@ -108,9 +112,10 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                   ),
                 ),
               ),
-              
-          
-              accountName: Text("John Doe",style: TextStyle(fontSize: 20,fontWeight:FontWeight.bold),),
+              accountName: Text(
+                "John Doe",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               accountEmail: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -150,6 +155,71 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                       Navigator.pop(context); // Close the drawer
                       // TODO: Add navigation logic here based on index
                       print('Tapped: ${item['title']}');
+                      switch (item['title']) {
+                        case "Home":
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Orderhistory()));
+                          break;
+
+                        case "Leaves":
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Orderhistory()));
+                          break;
+
+                        case "Shifts":
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Orderhistory()));
+                          break;
+
+                        case "Wallet":
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Orderhistory()));
+                          break;
+
+                        case "Order History":
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Orderhistory()));
+                          break;
+                        case "Shift Summary":
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Orderhistory()));
+                          break;
+                        case "Report Issue":
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Orderhistory()));
+                          break;
+                        case "Change Password":
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Orderhistory()));
+                          break;
+                        case "English/Arabic":
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Orderhistory()));
+                          break;
+                        case "Logout":
+                          logoutAlert(context);
+                          break;
+
+                        default:
+                      }
                     },
                   );
                 },
@@ -195,9 +265,12 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
             Expanded(
               child: TabBarView(controller: controller, children: [
                 Center(
-                  child: Column(children: [
-                    SizedBox(height: 0),Expanded(child: OrdersListScreen())
-                  ],),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 0),
+                      Expanded(child: OrdersListScreen())
+                    ],
+                  ),
                 ),
                 Container(
                   child: Column(children: [
@@ -219,5 +292,45 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
 
   void getShiftList() async {
     response = await shiftlistcontroller.getShiftList('2025-10-08');
+  }
+
+  logoutAlert(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Logout!"),
+            content: Text("Are you sure ?"),
+            actions: [
+              ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("No")),
+              ElevatedButton(
+                  onPressed: () {
+                    callLogout();
+                    Navigator.pop(context);
+                  },
+                  child: Text("Yes"))
+            ],
+          );
+        });
+  }
+
+  Future<void> callLogout() async {
+    var response = await shiftlistcontroller.callLogoutApi();
+    if (response!.status!) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('username', "");
+          await prefs.setString('password', "");
+          await prefs.setString('logindata', "");
+          await prefs.setString('token',"");
+          await prefs.setInt('driverID', 0);
+         
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
   }
 }
