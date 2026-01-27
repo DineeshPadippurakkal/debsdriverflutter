@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "764917381704",
+    "firebase_url": "https://debs-test-3c141-default-rtdb.firebaseio.com",
+    "project_id": "debs-test-3c141",
+    "storage_bucket": "debs-test-3c141.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:764917381704:android:b87dc61214ca69df42b67d",
+        "android_client_info": {
+          "package_name": "com.allow.debs"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNxShchTSkiav83fG18NkPgzwMRfxyvjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:764917381704:android:0a414e56dfe832fe42b67d",
+        "android_client_info": {
+          "package_name": "com.allow.driver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNxShchTSkiav83fG18NkPgzwMRfxyvjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:764917381704:android:d770bb341f3f230042b67d",
+        "android_client_info": {
+          "package_name": "com.example.debs_driver_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNxShchTSkiav83fG18NkPgzwMRfxyvjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

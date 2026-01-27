@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:debs_driver_app/OrderHistory/model/OrderHistoryRes.dart';
 import 'package:debs_driver_app/Utils/Utils.dart';
-import 'package:debs_driver_app/orderdetail/model/OrderDetailsResponse.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
@@ -21,7 +20,7 @@ class OrderHistoryController{
         'Content-Type': 'application/json',
       });
     
-      log("${response.body}");
+      log(response.body);
       if (response.statusCode == 200) {
         return OrderHistoryRes.fromJson(jsonDecode(response.body));
       } else {
@@ -32,8 +31,9 @@ class OrderHistoryController{
       }
     } catch (e) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("${e}")));
+          .showSnackBar(SnackBar(content: Text("$e")));
       // throw "${response.body}";
     }
+    return null;
   }
 }

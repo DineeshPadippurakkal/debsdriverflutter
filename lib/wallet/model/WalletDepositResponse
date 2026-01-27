@@ -1,0 +1,93 @@
+class WalletDepositResponse {
+  List<Data>? data;
+  Links? links;
+  int? count;
+  bool? status;
+  String? message;
+
+  WalletDepositResponse(
+      {this.data, this.links, this.count, this.status, this.message});
+
+  WalletDepositResponse.fromJson(Map<String, dynamic> json) {
+    if (json['data'] != null) {
+      data = <Data>[];
+      json['data'].forEach((v) {
+        data!.add(new Data.fromJson(v));
+      });
+    }
+    links = json['links'] != null ? new Links.fromJson(json['links']) : null;
+    count = json['count'];
+    status = json['status'];
+    message = json['message'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    if (this.data != null) {
+      data['data'] = this.data!.map((v) => v.toJson()).toList();
+    }
+    if (this.links != null) {
+      data['links'] = this.links!.toJson();
+    }
+    data['count'] = this.count;
+    data['status'] = this.status;
+    data['message'] = this.message;
+    return data;
+  }
+}
+
+class Data {
+  double? amount;
+  String? createdAt;
+  String? day;
+  String? date;
+  String? user;
+  int? id;
+
+  Data({this.amount, this.createdAt, this.day, this.date, this.user, this.id});
+
+  Data.fromJson(Map<String, dynamic> json) {
+    amount = json['amount'];
+    createdAt = json['created_at'];
+    day = json['day'];
+    date = json['date'];
+    user = json['user'];
+    id = json['id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['amount'] = this.amount;
+    data['created_at'] = this.createdAt;
+    data['day'] = this.day;
+    data['date'] = this.date;
+    data['user'] = this.user;
+    data['id'] = this.id;
+    return data;
+  }
+}
+
+class Links {
+  Null? next;
+  Null? previous;
+  Null? offset;
+  Null? limit;
+
+  Links({this.next, this.previous, this.offset, this.limit});
+
+  Links.fromJson(Map<String, dynamic> json) {
+    next = json['next'];
+    previous = json['previous'];
+    offset = json['offset'];
+    limit = json['limit'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['next'] = this.next;
+    data['previous'] = this.previous;
+    data['offset'] = this.offset;
+    data['limit'] = this.limit;
+    return data;
+  }
+}

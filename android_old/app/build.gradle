@@ -5,7 +5,7 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
 }
-
+// i want run project on android device yes connected 
 // ✅ DO NOT put google-services plugin here — it must be at the bottom
 
 android {
@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.debs_driver_app"
-        minSdk = 23
+        minSdkVersion = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

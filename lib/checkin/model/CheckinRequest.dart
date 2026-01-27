@@ -8,8 +8,8 @@ class CheckinRequest {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['slot_id'] = this.slotId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['slot_id'] = slotId;
     return data;
   }
 }

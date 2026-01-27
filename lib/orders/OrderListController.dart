@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:debs_driver_app/Utils/Utils.dart';
 import 'package:debs_driver_app/orders/OrderListResponse.dart';
+import 'package:debs_driver_app/orders/ResumeOrderResponse.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -23,6 +24,37 @@ class Orderlistcontroller {
       print('this is the status code ${response.body}');
       if (response.statusCode == 200) {
         return OrderListResponse.fromJson(jsonDecode(response.body));
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("${response.statusCode}")));
+        // throw "${response.body}";
+        return null;
+      }
+    } catch (e , s) {
+      debugPrint("Error fetching orders: $e $s");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to fetch orders")),
+      );
+      return null;
+    }
+  }
+
+
+  Future<ResumeOrderResponse?> callResumeOrderApi(BuildContext context,int orderId) async {
+    final url = Uri.parse("$baseUrl/driver/orders/$orderId/resume");
+    String? token = await Utils().getToken();
+    
+    try {
+      final response = await http.post(url, headers: {
+        'Authorization': '$token',
+        'Content-Type': 'application/json',
+      });
+
+      print(url);
+      print(token);
+      print('this is the status code ${response.body}');
+      if (response.statusCode == 200) {
+        return ResumeOrderResponse.fromJson(jsonDecode(response.body));
       } else {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("${response.statusCode}")));

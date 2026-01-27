@@ -1,25 +1,37 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.debs_driver_app">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!--  Location Permissions -->
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-
-    <!--  Foreground Service Permission -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
-    <!--  Internet access (needed for Firebase upload) -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Queries MUST be here -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT" />
+            <data android:mimeType="text/plain" />
+        </intent>
+
+
+        <!-- WhatsApp -->
+        <package android:name="com.whatsapp" /> 
+
+        <!-- Allow VIEW intents -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+    </queries>
 
     <application
         android:label="debs_driver_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 
-        <!--  Main Flutter Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -40,31 +52,24 @@
             </intent-filter>
         </activity>
 
-        <!--  Required for Flutter to register plugins -->
+        <!-- Flutter embedding -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
 
-        <!--  Your Google Maps API Key -->
+        <!-- Google Maps API -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCmzviN1s_TiQ_C61qvLI2c64OsMfZQcUY" />
 
-        <!--  Background Location Service -->
+        <!-- Background Location Service -->
         <service
             android:name="id.flutter.flutter_background_service.BackgroundService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="location"
             tools:replace="android:exported" />
+
     </application>
 
-    <!-- Required for Flutter text processing -->
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT" />
-            <data android:mimeType="text/plain" />
-        </intent>
-    </queries>
 </manifest>
-

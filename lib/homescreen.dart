@@ -5,9 +5,10 @@ import 'package:debs_driver_app/controller/ShiftListController.dart';
 import 'package:debs_driver_app/login_screen.dart';
 import 'package:debs_driver_app/model/ShiftResponse.dart';
 import 'package:debs_driver_app/orders/OrdersListScreen.dart';
+import 'package:debs_driver_app/shiftsummary/view/ShiftSummaryScreen.dart';
+import 'package:debs_driver_app/wallet/WalletScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sqflite/sqflite.dart';
 import 'checkin/Shift_Checkin_Screen.dart';
 
 class Homescreen extends StatefulWidget {
@@ -181,7 +182,7 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Orderhistory()));
+                                  builder: (context) => WalletScreen()));
                           break;
 
                         case "Order History":
@@ -194,7 +195,7 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Orderhistory()));
+                                  builder: (context) => ShiftSummaryScreen()));
                           break;
                         case "Report Issue":
                           Navigator.push(

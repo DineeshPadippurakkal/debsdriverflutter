@@ -11,15 +11,15 @@ class ShiftListResponse {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -44,19 +44,19 @@ class Data {
     if (json['slots'] != null) {
       slots = <Slots>[];
       json['slots'].forEach((v) {
-        slots!.add(new Slots.fromJson(v));
+        slots!.add(Slots.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['shift'] = this.shift;
-    data['date'] = this.date;
-    data['day'] = this.day;
-    data['zone'] = this.zone;
-    if (this.slots != null) {
-      data['slots'] = this.slots!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['shift'] = shift;
+    data['date'] = date;
+    data['day'] = day;
+    data['zone'] = zone;
+    if (slots != null) {
+      data['slots'] = slots!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -85,12 +85,12 @@ class Slots {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['is_active'] = this.isActive;
-    data['slot'] = this.slot;
-    data['is_checkedIn'] = this.isCheckedIn;
-    data['start_time'] = this.startTime;
-    data['end_time'] = this.endTime;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['is_active'] = isActive;
+    data['slot'] = slot;
+    data['is_checkedIn'] = isCheckedIn;
+    data['start_time'] = startTime;
+    data['end_time'] = endTime;
     return data;
   }
 }

@@ -27,7 +27,7 @@ class _CheckinPointsBottomSheetState extends State<CheckinPointsBottomSheet> {
   CheckinpointsResponse response = CheckinpointsResponse();
   Checkinpointscontroller checkinpointscontroller = Checkinpointscontroller();
 
-  Completer<GoogleMapController> _controller = Completer();
+  final Completer<GoogleMapController> _controller = Completer();
 
   static final CameraPosition _initialCameraPosition = const CameraPosition(
     target: LatLng(10.42796133580664, 10.885749655962),

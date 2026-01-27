@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:debs_driver_app/Utils/sqldata.dart';
-import 'package:debs_driver_app/firebaselocation/FetchLocation.dart';
 import 'package:debs_driver_app/homescreen.dart';
 import 'package:debs_driver_app/provider/notification_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,7 +14,6 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:workmanager/workmanager.dart';
 import 'login_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -144,7 +142,7 @@ class _MyAppState extends State<MyApp> {
 
     final Map<String, dynamic> loginData = jsonDecode(loginDataString);
 
-    return loginData != null && loginData.toString().isNotEmpty;
+    return loginData.toString().isNotEmpty;
   }
 
   // This widget is the root of your application.

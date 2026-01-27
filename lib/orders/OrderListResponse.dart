@@ -8,13 +8,13 @@ class OrderListResponse {
   OrderListResponse.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -32,24 +32,24 @@ class Data {
     if (json['tasks'] != null) {
       tasks = <Tasks>[];
       json['tasks'].forEach((v) {
-        tasks!.add(new Tasks.fromJson(v));
+        tasks!.add(Tasks.fromJson(v));
       });
     }
     if (json['actions'] != null) {
       actions = <Actions>[];
       json['actions'].forEach((v) {
-        actions!.add(new Actions.fromJson(v));
+        actions!.add(Actions.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.tasks != null) {
-      data['tasks'] = this.tasks!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (tasks != null) {
+      data['tasks'] = tasks!.map((v) => v.toJson()).toList();
     }
-    if (this.actions != null) {
-      data['actions'] = this.actions!.map((v) => v.toJson()).toList();
+    if (actions != null) {
+      data['actions'] = actions!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -73,7 +73,7 @@ class Tasks {
 
   Tasks.fromJson(Map<String, dynamic> json) {
     pickupDetails = json['pickup_details'] != null
-        ? new PickupDetails.fromJson(json['pickup_details'])
+        ? PickupDetails.fromJson(json['pickup_details'])
         : null;
     isActive = json['is_active'];
     isAcknowledged = json['is_acknowledged'];
@@ -82,22 +82,22 @@ class Tasks {
     if (json['orders'] != null) {
       orders = <Orders>[];
       json['orders'].forEach((v) {
-        orders!.add(new Orders.fromJson(v));
+        orders!.add(Orders.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.pickupDetails != null) {
-      data['pickup_details'] = this.pickupDetails!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (pickupDetails != null) {
+      data['pickup_details'] = pickupDetails!.toJson();
     }
-    data['is_active'] = this.isActive;
-    data['is_acknowledged'] = this.isAcknowledged;
-    data['is_multiple'] = this.isMultiple;
-    data['task_id'] = this.taskId;
-    if (this.orders != null) {
-      data['orders'] = this.orders!.map((v) => v.toJson()).toList();
+    data['is_active'] = isActive;
+    data['is_acknowledged'] = isAcknowledged;
+    data['is_multiple'] = isMultiple;
+    data['task_id'] = taskId;
+    if (orders != null) {
+      data['orders'] = orders!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -129,13 +129,13 @@ class PickupDetails {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['area'] = this.area;
-    data['name'] = this.name;
-    data['mobile'] = this.mobile;
-    data['logo'] = this.logo;
-    data['latitude'] = this.latitude;
-    data['longitude'] = this.longitude;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['area'] = area;
+    data['name'] = name;
+    data['mobile'] = mobile;
+    data['logo'] = logo;
+    data['latitude'] = latitude;
+    data['longitude'] = longitude;
     return data;
   }
 }
@@ -178,17 +178,17 @@ class Orders {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['reference_id'] = this.referenceId;
-    data['date'] = this.date;
-    data['time'] = this.time;
-    data['day'] = this.day;
-    data['priority'] = this.priority;
-    data['area'] = this.area;
-    data['amount'] = this.amount;
-    data['is_active'] = this.isActive;
-    data['id'] = this.id;
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['reference_id'] = referenceId;
+    data['date'] = date;
+    data['time'] = time;
+    data['day'] = day;
+    data['priority'] = priority;
+    data['area'] = area;
+    data['amount'] = amount;
+    data['is_active'] = isActive;
+    data['id'] = id;
+    data['status'] = status;
     return data;
   }
 }
@@ -209,11 +209,11 @@ class Actions {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['task_id'] = this.taskId;
-    data['action_id'] = this.actionId;
-    data['action_label'] = this.actionLabel;
-    data['order_id'] = this.orderId;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['task_id'] = taskId;
+    data['action_id'] = actionId;
+    data['action_label'] = actionLabel;
+    data['order_id'] = orderId;
     return data;
   }
 }

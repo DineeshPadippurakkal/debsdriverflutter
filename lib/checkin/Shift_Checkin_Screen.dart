@@ -1,7 +1,4 @@
-import 'dart:convert';
-import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:debs_driver_app/Utils/color.dart';
 import 'package:debs_driver_app/checkin/checkinPoints.dart';
 import 'package:debs_driver_app/controller/ShiftListController.dart';
@@ -59,7 +56,7 @@ class _ShiftScheckinScreenState extends State<ShiftScheckinScreen> {
       setState(() {
         isloading = false;
       });
-      throw e;
+      rethrow;
     }
   }
 
@@ -98,18 +95,18 @@ class _ShiftScheckinScreenState extends State<ShiftScheckinScreen> {
                 itemCount: next7Days.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
-                  final shift_day = next7Days[index];
-                  var formated_shiftDay =
-                      DateFormat('dd MMM').format(shift_day);
+                  final shiftDay = next7Days[index];
+                  var formatedShiftday =
+                      DateFormat('dd MMM').format(shiftDay);
                   if (index == 0) {
-                    formated_shiftDay = "today";
+                    formatedShiftday = "today";
                   }
 
                   // selected == indx;
                   return GestureDetector(
                     onTap: () {
-                      print("clicked $shift_day");
-                      getShiftList(DateFormat('yyyy-MM-dd').format(shift_day));
+                      print("clicked $shiftDay");
+                      getShiftList(DateFormat('yyyy-MM-dd').format(shiftDay));
 
                       setState(() {
                         selected = index;
@@ -131,7 +128,7 @@ class _ShiftScheckinScreenState extends State<ShiftScheckinScreen> {
                       ),
                       child: Center(
                           child: Text(
-                        formated_shiftDay.toString(),
+                        formatedShiftday.toString(),
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: index == selected

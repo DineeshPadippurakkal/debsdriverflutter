@@ -2,6 +2,7 @@ import 'package:debs_driver_app/Utils/color.dart';
 import 'package:debs_driver_app/orderdetail/OrderDetails.dart';
 import 'package:debs_driver_app/orders/OrderListController.dart';
 import 'package:debs_driver_app/orders/OrderListResponse.dart';
+import 'package:debs_driver_app/orders/ResumeOrderResponse.dart';
 import 'package:debs_driver_app/provider/notification_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,6 +19,7 @@ class OrdersListScreen extends StatefulWidget {
 class _OrdersListScreenState extends State<OrdersListScreen> {
   final Orderlistcontroller _orderlistcontroller = Orderlistcontroller();
   OrderListResponse? response;
+  ResumeOrderResponse resumeOrderResponse=ResumeOrderResponse();
 
   bool isloading = false;
   @override
@@ -47,7 +49,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       setState(() {
         isloading = false;
       });
-      throw e;
+      rethrow;
     }
   }
 
@@ -104,12 +106,18 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                         return Consumer<NotificationProvider>(
                             builder: (context, provider, data) {
                           return GestureDetector(
-                            onTap: () {
+                            onTap: () async {
                               print("task id = ${task.taskId}");
                               print("order id = ${orders.first.id}");
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => OrderDetails(
-                                     taskId:  task.taskId,orderID:  orders.first.id)));
+                              final shouldReload = await Navigator.of(context)
+                                  .push(MaterialPageRoute(
+                                      builder: (context) => OrderDetails(
+                                          taskId: task.taskId,
+                                          orderID: orders.first.id)));
+
+                              if (shouldReload == true) {
+                                _loadOrders(); // 🔄 reload list
+                              }
                             },
                             child: Card(
                               color: bgColor,
@@ -331,6 +339,37 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                                                     TextStyle(color: textColor),
                                               ),
                                             ),
+                                            if (orders.first.status == "Hold")
+                                              Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 20,
+                                                    vertical: 6),
+                                                child: SizedBox(
+                                                  width: double.infinity,
+                                                  child: ElevatedButton.icon(
+                                                      onPressed: () {
+                                                        _onResumeOrder(
+                                                          task.taskId!,
+                                                          orders.first.id!,
+                                                        );
+                                                      },
+                                                      label:
+                                                          Text("Resume Order"),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        backgroundColor:
+                                                            Colors.orange,
+                                                        foregroundColor:
+                                                            Colors.white,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(8),
+                                                        ),
+                                                      )),
+                                                ),
+                                              ),
                                           ],
 
                                           // 🔹 MULTIPLE ORDERS
@@ -381,16 +420,23 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                                                           : Colors.grey;
 
                                                   return GestureDetector(
-                                                    onTap: () {
-                                                      Navigator.of(context).push(
-                                                          MaterialPageRoute(
+                                                    onTap: () async {
+                                                      final shouldReload = await Navigator
+                                                              .of(context)
+                                                          .push(MaterialPageRoute(
                                                               builder: (context) =>
-                                                                  OrderDetails(taskId: 
-                                                                      task.taskId,orderID: 
-                                                                      orders
+                                                                  OrderDetails(
+                                                                      taskId: task
+                                                                          .taskId,
+                                                                      orderID: orders
                                                                           .first
                                                                           .id)));
-                                                },
+
+                                                      if (shouldReload ==
+                                                          true) {
+                                                        _loadOrders(); // 🔄 reload list
+                                                      }
+                                                    },
                                                     child: Container(
                                                       margin: const EdgeInsets
                                                           .symmetric(
@@ -490,5 +536,41 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _onResumeOrder(int taskId, int orderId) async {
+    // TODO: Call RESUME ORDER API
+    debugPrint("Resume order → taskId: $taskId, orderId: $orderId");
+
+ 
+    try {
+      setState(() {
+        isloading = true;
+      });
+
+      final data = await _orderlistcontroller.callResumeOrderApi(context,orderId);
+      if (data != null) {
+        setState(() {
+          isloading = false;
+          resumeOrderResponse = data;
+        
+        });
+         await getOrders();
+      } else {
+        setState(() {
+          isloading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isloading = false;
+      });
+      rethrow;
+    }
+  
+  }
+
+  void _loadOrders() {
+    getOrders();
   }
 }

@@ -13,25 +13,25 @@ class OrderHistoryRes {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
     message = json['message'];
-    links = json['links'] != null ? new Links.fromJson(json['links']) : null;
+    links = json['links'] != null ? Links.fromJson(json['links']) : null;
     count = json['count'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
-    data['message'] = this.message;
-    if (this.links != null) {
-      data['links'] = this.links!.toJson();
+    data['message'] = message;
+    if (links != null) {
+      data['links'] = links!.toJson();
     }
-    data['count'] = this.count;
+    data['count'] = count;
     return data;
   }
 }
@@ -87,7 +87,7 @@ class Data {
     supplierBranch = json['supplier_branch'];
     orderFrom = json['order_from'];
     location = json['location'] != null
-        ? new Location.fromJson(json['location'])
+        ? Location.fromJson(json['location'])
         : null;
     orderStatus = json['order_status'];
     orderStatusLabel = json['order_status_label'];
@@ -104,29 +104,29 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['order'] = this.order;
-    data['driver'] = this.driver;
-    data['date'] = this.date;
-    data['time'] = this.time;
-    data['day'] = this.day;
-    data['supplier_branch'] = this.supplierBranch;
-    data['order_from'] = this.orderFrom;
-    if (this.location != null) {
-      data['location'] = this.location!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['order'] = order;
+    data['driver'] = driver;
+    data['date'] = date;
+    data['time'] = time;
+    data['day'] = day;
+    data['supplier_branch'] = supplierBranch;
+    data['order_from'] = orderFrom;
+    if (location != null) {
+      data['location'] = location!.toJson();
     }
-    data['order_status'] = this.orderStatus;
-    data['order_status_label'] = this.orderStatusLabel;
-    data['logo'] = this.logo;
-    data['area_name'] = this.areaName;
-    data['is_acknowledged'] = this.isAcknowledged;
-    data['payment_type_label'] = this.paymentTypeLabel;
-    data['payment_type__label'] = this.paymentTypeLabel;
-    data['payment_amount'] = this.paymentAmount;
-    data['task'] = this.task;
-    data['priority'] = this.priority;
-    data['reference_id'] = this.referenceId;
-    data['pickup_area_name'] = this.pickupAreaName;
+    data['order_status'] = orderStatus;
+    data['order_status_label'] = orderStatusLabel;
+    data['logo'] = logo;
+    data['area_name'] = areaName;
+    data['is_acknowledged'] = isAcknowledged;
+    data['payment_type_label'] = paymentTypeLabel;
+    data['payment_type__label'] = paymentTypeLabel;
+    data['payment_amount'] = paymentAmount;
+    data['task'] = task;
+    data['priority'] = priority;
+    data['reference_id'] = referenceId;
+    data['pickup_area_name'] = pickupAreaName;
     return data;
   }
 }
@@ -143,9 +143,9 @@ class Location {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['type'] = this.type;
-    data['coordinates'] = this.coordinates;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['type'] = type;
+    data['coordinates'] = coordinates;
     return data;
   }
 }
@@ -166,11 +166,11 @@ class Links {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['next'] = this.next;
-    data['previous'] = this.previous;
-    data['offset'] = this.offset;
-    data['limit'] = this.limit;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['next'] = next;
+    data['previous'] = previous;
+    data['offset'] = offset;
+    data['limit'] = limit;
     return data;
   }
 }

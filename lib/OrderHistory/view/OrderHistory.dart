@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:debs_driver_app/OrderHistory/controller/OrderHistoryController.dart';
 import 'package:debs_driver_app/OrderHistory/model/OrderHistoryRes.dart';
 import 'package:debs_driver_app/Utils/color.dart';
@@ -24,15 +22,15 @@ class _OrderhistoryState extends State<Orderhistory> {
   void initState() {
     super.initState();
 
-  fetchInitialOrders();
+    fetchInitialOrders();
     // orderHistoryFuture =
     //     OrderHistoryController().fetchORderHistory(context, limit, offset);
     scrollController.addListener(() {
-    if (scrollController.position.pixels >=
-        scrollController.position.maxScrollExtent - 50) {
-      loadMoreOrders();
-    }
-  });
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent - 50) {
+        loadMoreOrders();
+      }
+    });
   }
 
   // void loadMore(int limit, int offset) {
@@ -40,40 +38,40 @@ class _OrderhistoryState extends State<Orderhistory> {
   //       OrderHistoryController().fetchORderHistory(context, limit, offset);
   // }
 
-bool initialLoading = true;
-bool isLoadingMore = false;
+  bool initialLoading = true;
+  bool isLoadingMore = false;
   void fetchInitialOrders() async {
-  final response =
-      await OrderHistoryController().fetchORderHistory(context, limit, offset);
+    final response = await OrderHistoryController()
+        .fetchORderHistory(context, limit, offset);
 
-  if (response != null) {
-    setState(() {
-      allOrders = response.data ?? [];
-      offset = response.links?.offset ?? 0;
-      initialLoading = false;
-    });
+    if (response != null) {
+      setState(() {
+        allOrders = response.data ?? [];
+        offset = response.links?.offset ?? 0;
+        initialLoading = false;
+      });
+    }
   }
-}
-void loadMoreOrders() async {
-  if (isLoadingMore) return;
 
-  setState(() => isLoadingMore = true);
+  void loadMoreOrders() async {
+    if (isLoadingMore) return;
 
-  final response =
-      await OrderHistoryController().fetchORderHistory(context, limit, offset);
+    setState(() => isLoadingMore = true);
 
-  if (response != null) {
-    setState(() {
-      allOrders.addAll(response.data ?? []);
-      offset = response.links?.offset ?? 0;
-      isLoadingMore = false;
-    });
+    final response = await OrderHistoryController()
+        .fetchORderHistory(context, limit, offset);
+
+    if (response != null) {
+      setState(() {
+        allOrders.addAll(response.data ?? []);
+        offset = response.links?.offset ?? 0;
+        isLoadingMore = false;
+      });
+    }
   }
-}
 
-List<Data> allOrders = [];
+  List<Data> allOrders = [];
   ScrollController scrollController = ScrollController();
-  
 
   @override
   Widget build(BuildContext context) {
@@ -89,40 +87,40 @@ List<Data> allOrders = [];
       ),
       body: Column(
         children: [
-          Expanded(child:initialLoading
-        ? Center(child: CircularProgressIndicator())
-        : ListView.builder(
-            controller: scrollController,
-            itemCount: allOrders.length + 1,
-            itemBuilder: (context, index) {
-              if (index == allOrders.length) {
-                return isLoadingMore
-                    ? Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(
-                          child: CircularProgressIndicator(strokeWidth: 3),
-                        ),
-                      )
-                    : SizedBox.shrink();
-              }
+          Expanded(
+            child: initialLoading
+                ? Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    controller: scrollController,
+                    itemCount: allOrders.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == allOrders.length) {
+                        return isLoadingMore
+                            ? Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 3),
+                                ),
+                              )
+                            : SizedBox.shrink();
+                      }
 
-              final order = allOrders[index];
+                      final order = allOrders[index];
 
-              return OrderHistoryItem(
-                logo: order.logo ?? "",
-                date: "${order.date}, ${order.time}",
-                itemName: order.orderFrom ?? "",
-                location: order.areaName ?? "",
-                orderNumber: order.order.toString(),
-                paymentStatus: order.paymentTypeLabel ?? "",
-                paymentAmount: "${order.paymentAmount}",
-                orderStatus: order.orderStatusLabel ?? "",
-              );
-            },
-          ),
-  
-
-)
+                      return OrderHistoryItem(
+                        logo: order.logo ?? "",
+                        date: "${order.date}, ${order.time}",
+                        itemName: order.orderFrom ?? "",
+                        location: order.areaName ?? "",
+                        orderNumber: order.order.toString(),
+                        paymentStatus: order.paymentTypeLabel ?? "",
+                        paymentAmount: "${order.paymentAmount}",
+                        orderStatus: order.orderStatusLabel ?? "",
+                      );
+                    },
+                  ),
+          )
 //           Expanded(
 //             child: FutureBuilder(
 //               future: orderHistoryFuture,

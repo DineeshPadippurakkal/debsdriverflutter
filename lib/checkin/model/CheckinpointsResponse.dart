@@ -8,13 +8,13 @@ class CheckinpointsResponse {
   CheckinpointsResponse.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -35,17 +35,17 @@ class Data {
     if (json['points'] != null) {
       points = <Points>[];
       json['points'].forEach((v) {
-        points!.add(new Points.fromJson(v));
+        points!.add(Points.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['zone'] = this.zone;
-    data['radius'] = this.radius;
-    if (this.points != null) {
-      data['points'] = this.points!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['zone'] = zone;
+    data['radius'] = radius;
+    if (points != null) {
+      data['points'] = points!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -63,9 +63,9 @@ class Points {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['lat'] = this.lat;
-    data['long'] = this.long;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['lat'] = lat;
+    data['long'] = long;
     return data;
   }
 }
