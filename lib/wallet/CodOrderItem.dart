@@ -32,7 +32,7 @@ class CodOrderItem extends StatelessWidget {
               height: 50,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) {
-                return Container(
+                return SizedBox(
                   width: 50,
                   height: 50, 
                   child:   Image.asset("assets/images/logo.png"),

@@ -8,13 +8,13 @@ class ShiftSummaryResponse {
   ShiftSummaryResponse.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.toJson();
     }
@@ -30,22 +30,22 @@ class Data {
 
   Data.fromJson(Map<String, dynamic> json) {
     summary =
-        json['summary'] != null ? new Summary.fromJson(json['summary']) : null;
+        json['summary'] != null ? Summary.fromJson(json['summary']) : null;
     if (json['rows'] != null) {
       rows = <Rows>[];
       json['rows'].forEach((v) {
-        rows!.add(new Rows.fromJson(v));
+        rows!.add(Rows.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.summary != null) {
-      data['summary'] = this.summary!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (summary != null) {
+      data['summary'] = summary!.toJson();
     }
-    if (this.rows != null) {
-      data['rows'] = this.rows!.map((v) => v.toJson()).toList();
+    if (rows != null) {
+      data['rows'] = rows!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -74,12 +74,12 @@ class Summary {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['shifts'] = this.shifts;
-    data['orders'] = this.orders;
-    data['actual_working_hours'] = this.actualWorkingHours;
-    data['planned_working_hours'] = this.plannedWorkingHours;
-    data['break_hours'] = this.breakHours;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['shifts'] = shifts;
+    data['orders'] = orders;
+    data['actual_working_hours'] = actualWorkingHours;
+    data['planned_working_hours'] = plannedWorkingHours;
+    data['break_hours'] = breakHours;
     return data;
   }
 }
@@ -110,13 +110,13 @@ class Rows {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['actual_working_hours'] = this.actualWorkingHours;
-    data['break_hours'] = this.breakHours;
-    data['planned_working_hours'] = this.plannedWorkingHours;
-    data['shifts'] = this.shifts;
-    data['orders'] = this.orders;
-    data['date'] = this.date;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['actual_working_hours'] = actualWorkingHours;
+    data['break_hours'] = breakHours;
+    data['planned_working_hours'] = plannedWorkingHours;
+    data['shifts'] = shifts;
+    data['orders'] = orders;
+    data['date'] = date;
     return data;
   }
 }

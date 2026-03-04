@@ -1,9 +1,10 @@
 import 'dart:convert';
 
 import 'package:debs_driver_app/Utils/color.dart';
-import 'package:debs_driver_app/homescreen.dart';
-import 'package:debs_driver_app/login_controller.dart';
+import 'package:debs_driver_app/home/homescreen.dart';
+import 'package:debs_driver_app/login/controller/login_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -22,29 +23,40 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _loading = false;
   LoginController loginController = LoginController();
-  void _login() async {
-    if (_formKey.currentState!.validate()) {
-      String username = _usernameController.text;
-      String password = _passwordController.text;
-      setState(() => _loading = true);
+void _login() async {
+  if (_formKey.currentState!.validate()) {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
 
-      try {
-        final response = await loginController.controller(username, password);
+    setState(() => _loading = true);
 
-        if (response?.status ?? false) {
-          //------
-          final SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('username', username);
-          await prefs.setString('password', password);
-          await prefs.setString('logindata', jsonEncode(response!.toJson()));
-          await prefs.setString('token', response.data!.accessToken.toString());
-          await prefs.setInt('driverID', response.data!.driverId);
-          //-------------------
-clearTextfiled();
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => Homescreen()));
-        } else {
-             ScaffoldMessenger.of(context).showSnackBar(
+    try { 
+      String? playerID = OneSignal.User.pushSubscription.id;
+
+      print("Player ID: $playerID");
+
+      final response = await loginController.controller(
+        username,
+        password,
+        playerID ?? "",
+      );
+
+      if (response?.status ?? false) {
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('username', username);
+        await prefs.setString('password', password);
+        await prefs.setString('logindata', jsonEncode(response!.toJson()));
+        await prefs.setString('token', response.data!.accessToken.toString());
+        await prefs.setInt('driverID', response.data!.driverId);
+
+        clearTextfiled();
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Homescreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               response?.message ?? "Invalid username or password",
@@ -54,15 +66,17 @@ clearTextfiled();
             behavior: SnackBarBehavior.floating,
           ),
         );
-      
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error: $e")),
-        );
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    } finally {
+      setState(() => _loading = false);
     }
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -144,13 +158,19 @@ clearTextfiled();
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child:_loading? const SizedBox(height: 22,width: 22,child: CircularProgressIndicator(color: Colors.white,strokeWidth: 2.5,
+                    child: _loading
+                        ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2.5,
                             ),
                           )
-                   : const Text(
-                      "Login",
-                      style: TextStyle(fontSize: 18, color: Colors.white),
-                    ),
+                        : const Text(
+                            "Login",
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -172,12 +192,11 @@ clearTextfiled();
       ),
     );
   }
-  
+
   void clearTextfiled() {
     setState(() {
-      
-      _usernameController.text="";
-      _passwordController.text="";
+      _usernameController.text = "";
+      _passwordController.text = "";
     });
   }
 }

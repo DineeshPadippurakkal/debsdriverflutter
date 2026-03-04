@@ -1,8 +1,7 @@
-
 import 'package:debs_driver_app/Utils/color.dart';
 import 'package:debs_driver_app/checkin/checkinPoints.dart';
 import 'package:debs_driver_app/controller/ShiftListController.dart';
-import 'package:debs_driver_app/model/ShiftResponse.dart';
+import 'package:debs_driver_app/home/model/ShiftResponse.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -96,8 +95,7 @@ class _ShiftScheckinScreenState extends State<ShiftScheckinScreen> {
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   final shiftDay = next7Days[index];
-                  var formatedShiftday =
-                      DateFormat('dd MMM').format(shiftDay);
+                  var formatedShiftday = DateFormat('dd MMM').format(shiftDay);
                   if (index == 0) {
                     formatedShiftday = "today";
                   }

@@ -1,5 +1,4 @@
 import 'package:debs_driver_app/wallet/DepositItem.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 Widget depositListItem(DepositItem item) {
   return Container(

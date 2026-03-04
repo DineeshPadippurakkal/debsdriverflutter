@@ -149,6 +149,7 @@ class Orders {
   String? area;
   double? amount;
   bool? isActive;
+  String? collectionMethod;
   int? id;
   String? status;
 
@@ -161,6 +162,7 @@ class Orders {
       this.area,
       this.amount,
       this.isActive,
+      this.collectionMethod,
       this.id,
       this.status});
 
@@ -173,6 +175,7 @@ class Orders {
     area = json['area'];
     amount = json['amount'];
     isActive = json['is_active'];
+    collectionMethod=json['collection_method'];
     id = json['id'];
     status = json['status'];
   }
@@ -187,6 +190,7 @@ class Orders {
     data['area'] = area;
     data['amount'] = amount;
     data['is_active'] = isActive;
+     data['collection_method'] = collectionMethod;
     data['id'] = id;
     data['status'] = status;
     return data;

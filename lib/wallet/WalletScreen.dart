@@ -4,7 +4,6 @@ import 'package:debs_driver_app/wallet/controller/WalletController.dart';
 import 'package:debs_driver_app/wallet/model/CODOrdersResponse.dart';
 import 'package:debs_driver_app/wallet/model/WalletDepositResponse';
 import 'package:debs_driver_app/wallet/model/WalletResponse.dart';
-import 'package:debs_driver_app/wallet/walletDepositItem.dart';
 import 'package:flutter/material.dart';
 
 class WalletScreen extends StatefulWidget {

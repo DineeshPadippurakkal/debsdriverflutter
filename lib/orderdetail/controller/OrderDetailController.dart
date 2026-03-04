@@ -15,7 +15,6 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:signature/signature.dart';
 import 'dart:ui' as ui;
-import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class Orderdetailcontroller {
@@ -35,6 +34,7 @@ class Orderdetailcontroller {
       });
       print(url);
       print(token);
+      log(url.toString());
       log('this is the status code ${response.body}');
       if (response.statusCode == 200) {
         return OrderDetailResponse.fromJson(jsonDecode(response.body));

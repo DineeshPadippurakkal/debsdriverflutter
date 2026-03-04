@@ -1,10 +1,17 @@
+import 'dart:developer';
+import 'dart:ui';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:debs_driver_app/Utils/color.dart';
+import 'package:debs_driver_app/notification/driver_background_service.dart';
 import 'package:debs_driver_app/orderdetail/OrderDetails.dart';
+import 'package:debs_driver_app/orders/AcknowledgementReq.dart';
 import 'package:debs_driver_app/orders/OrderListController.dart';
 import 'package:debs_driver_app/orders/OrderListResponse.dart';
 import 'package:debs_driver_app/orders/ResumeOrderResponse.dart';
 import 'package:debs_driver_app/provider/notification_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:provider/provider.dart';
@@ -16,16 +23,49 @@ class OrdersListScreen extends StatefulWidget {
   State<OrdersListScreen> createState() => _OrdersListScreenState();
 }
 
-class _OrdersListScreenState extends State<OrdersListScreen> {
+class _OrdersListScreenState extends State<OrdersListScreen>
+    with SingleTickerProviderStateMixin {
+  final AudioPlayer _audioPlayer = AudioPlayer();
   final Orderlistcontroller _orderlistcontroller = Orderlistcontroller();
   OrderListResponse? response;
-  ResumeOrderResponse resumeOrderResponse=ResumeOrderResponse();
+  ResumeOrderResponse resumeOrderResponse = ResumeOrderResponse();
+
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
   bool isloading = false;
+  bool isAckLoading = false;
   @override
   void initState() {
     super.initState();
     getOrders();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..repeat(reverse: true);
+
+    _animation = Tween<double>(begin: 0, end: -8).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+  }
+
+  Future<void> playNotificationSound() async {
+    await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+    await _audioPlayer.play(AssetSource('sounds/notification_sound.wav'));
+  }
+
+  Future<void> stopNotificationSound() async {
+    await _audioPlayer.stop();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   Future<void> getOrders() async {
@@ -39,6 +79,9 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
         setState(() {
           isloading = false;
           response = data;
+          if (response!.data!.tasks!.any((t) => t.isAcknowledged == false)) {
+            playNotificationSound();
+          }
         });
       } else {
         setState(() {
@@ -83,11 +126,12 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                       itemCount: response!.data!.tasks!.length,
                       itemBuilder: (context, index) {
                         final task = response!.data!.tasks![index];
+
+                        final order = response!.data!.tasks![0].orders![index];
                         final pickup = task.pickupDetails!;
                         final isActive = task.isActive ?? false;
                         final isMultiple = task.isMultiple ?? false;
                         final orders = task.orders ?? [];
-
                         // 🔹 Define color palette based on active/inactive state
                         final Color textColor =
                             isActive ? Colors.black : Colors.grey;
@@ -120,6 +164,7 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                               }
                             },
                             child: Card(
+                              clipBehavior: Clip.antiAlias,
                               color: bgColor,
                               elevation: isActive ? 5 : 1,
                               shape: RoundedRectangleBorder(
@@ -278,37 +323,67 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                                             ],
                                           ),
 
-                                          const SizedBox(height: 8),
-
                                           // 🔹 SINGLE ORDER
                                           if (!isMultiple &&
                                               orders.isNotEmpty) ...[
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
+                                            Row(
+                                              children: [
+                                                Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
                                                       horizontal: 12,
                                                       vertical: 2),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    "Order #${orders.first.id ?? ''}",
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontSize: 14,
-                                                        color: textColor),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Order #${orders.first.id ?? ''}",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            fontSize: 14,
+                                                            color: textColor),
+                                                      ),
+                                                      // Text(
+                                                      //   orders.first.status ?? "",
+                                                      //   style: TextStyle(
+                                                      //       color: statusColor,
+                                                      //       fontWeight: FontWeight.w600),
+                                                      // ),
+                                                    ],
                                                   ),
-                                                  // Text(
-                                                  //   orders.first.status ?? "",
-                                                  //   style: TextStyle(
-                                                  //       color: statusColor,
-                                                  //       fontWeight: FontWeight.w600),
-                                                  // ),
-                                                ],
-                                              ),
+                                                ),
+                                                Spacer(),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 12, right: 12),
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: boxColor,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              6),
+                                                      border: Border.all(
+                                                          color: Colors.green),
+                                                    ),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4),
+                                                    child: Text(
+                                                      orders.first
+                                                              .collectionMethod ??
+                                                          "",
+                                                      style: TextStyle(
+                                                        color: Colors.green,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                             Padding(
                                               padding:
@@ -327,6 +402,37 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                                                 // ],
                                               ),
                                             ),
+                                            if (order.referenceId != null)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 12),
+                                                child: Container(
+                                                    child: Row(
+                                                  children: [
+                                                    Text("Reference # ",
+                                                        style: TextStyle(
+                                                            color:
+                                                                Colors.black)),
+                                                    Container(
+                                                        decoration: BoxDecoration(
+                                                            color: boxColor,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        6),
+                                                            border: Border.all(
+                                                                color:
+                                                                    borderColor)),
+                                                        child: Padding(
+                                                          padding:
+                                                              EdgeInsetsGeometry
+                                                                  .all(08),
+                                                          child: Text(
+                                                              " ${order.referenceId} "),
+                                                        )),
+                                                  ],
+                                                )),
+                                              ),
                                             Padding(
                                               padding: const EdgeInsets.only(
                                                   bottom: 12,
@@ -513,6 +619,20 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                                       ),
                                     ),
                                   ),
+                                  if (task.isAcknowledged == false)
+                                    Positioned.fill(
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(
+                                              sigmaX: 2, sigmaY: 2),
+                                          child: Container(
+                                            color:
+                                                Colors.white.withOpacity(0.1),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   if (provider.Messagement)
                                     Positioned(
                                         bottom: 0,
@@ -526,6 +646,54 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                                                       .messageaccepted(false);
                                                 },
                                                 child: Text("data")))),
+                                  if (task.isAcknowledged == false)
+                                    Positioned(
+                                      left: 16,
+                                      right: 16,
+                                      bottom: 16,
+                                      child: AnimatedBuilder(
+                                        animation: _animation,
+                                        builder: (context, child) {
+                                          return Transform.translate(
+                                            offset: Offset(0, _animation.value),
+                                            child: child,
+                                          );
+                                        },
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 14),
+                                            backgroundColor: ColorTheme().green,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                          onPressed: () async{
+                                             await stopNotificationSound();
+                                             DriverBackgroundService.stopAlert();
+                                            getCurrentLocation(
+                                              task.taskId,
+                                            );
+                                          },
+                                          child: isAckLoading
+                                              ? const SizedBox(
+                                                  height: 20,
+                                                  width: 20,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    color: Colors.white,
+                                                    strokeWidth: 2,
+                                                  ),
+                                                )
+                                              : const Text(
+                                                  "Accept",
+                                                  style: TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                        ),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
@@ -542,20 +710,19 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
     // TODO: Call RESUME ORDER API
     debugPrint("Resume order → taskId: $taskId, orderId: $orderId");
 
- 
     try {
       setState(() {
         isloading = true;
       });
 
-      final data = await _orderlistcontroller.callResumeOrderApi(context,orderId);
+      final data =
+          await _orderlistcontroller.callResumeOrderApi(context, orderId);
       if (data != null) {
         setState(() {
           isloading = false;
           resumeOrderResponse = data;
-        
         });
-         await getOrders();
+        await getOrders();
       } else {
         setState(() {
           isloading = false;
@@ -567,10 +734,74 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       });
       rethrow;
     }
-  
   }
 
   void _loadOrders() {
     getOrders();
+  }
+
+  Future<void> callAcknowledgmentApi(
+      int taskID, double latitude, double longitude) async {
+    try {
+      setState(() {
+        isloading = true;
+      });
+      AcknowledgementReq acknowledgementReq = AcknowledgementReq();
+      acknowledgementReq.lat = latitude;
+      acknowledgementReq.long = longitude;
+      final data = await _orderlistcontroller.callAcknowledgmentApi(
+          context, taskID, acknowledgementReq);
+      if (data != null) {
+        setState(() {
+          isloading = false;
+        });
+        await getOrders();
+      } else {
+        setState(() {
+          isloading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isloading = false;
+      });
+      rethrow;
+    }
+  }
+
+  Future<void> getCurrentLocation(int? taskID) async {
+    bool serviceEnabled;
+    LocationPermission permission;
+    setState(() {
+      isAckLoading = true;
+    });
+    // 🔍 Check service
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception("Location services are disabled");
+    }
+
+    // 🔐 Check permission
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw Exception("Location permission denied");
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception("Location permission permanently denied");
+    }
+
+    // 📍 Get position
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    log("location ${position.latitude}");
+    await callAcknowledgmentApi(taskID!, position.latitude, position.longitude);
+
+    debugPrint("LAT: ${position.latitude}, LNG: ${position.longitude}");
   }
 }

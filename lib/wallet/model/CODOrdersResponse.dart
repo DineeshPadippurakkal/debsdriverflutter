@@ -11,15 +11,15 @@ class CODOrdersResponse {
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
-        data!.add(new Data.fromJson(v));
+        data!.add(Data.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -56,14 +56,14 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['driver'] = this.driver;
-    data['order'] = this.order;
-    data['amount'] = this.amount;
-    data['order_from'] = this.orderFrom;
-    data['logo'] = this.logo;
-    data['date'] = this.date;
-    data['day'] = this.day;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['driver'] = driver;
+    data['order'] = order;
+    data['amount'] = amount;
+    data['order_from'] = orderFrom;
+    data['logo'] = logo;
+    data['date'] = date;
+    data['day'] = day;
     return data;
   }
 }

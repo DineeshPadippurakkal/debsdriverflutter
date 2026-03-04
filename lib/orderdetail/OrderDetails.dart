@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:debs_driver_app/Utils/color.dart';
-import 'package:debs_driver_app/orderdetail/DeliveryTimerCard.dart';
 import 'package:debs_driver_app/orderdetail/DeliveryTimerWidget.dart';
 import 'package:debs_driver_app/orderdetail/HolderOrder.dart';
 import 'package:debs_driver_app/orderdetail/PickupTimer.dart';
@@ -95,7 +94,7 @@ class _OrderDetailsState extends State<OrderDetails> {
       });
     } else {
       setState(() {
-        isloading = false;
+        isloading = false;  
       });
     }
   }
@@ -279,6 +278,9 @@ class _OrderDetailsState extends State<OrderDetails> {
       final String? refId = orderdetailResponse.data?.orderDetails?.referenceId;
       final double amountDue =
           orderdetailResponse.data!.orderDetails!.amountDueOnDelivery ?? 0.0;
+
+      final expectedTs =
+          orderdetailResponse.data?.dropOffDetails?.expectedDeliveryTs;
 
       return Scaffold(
         backgroundColor: Colors.white,
@@ -622,7 +624,9 @@ class _OrderDetailsState extends State<OrderDetails> {
                                       borderRadius: BorderRadius.circular(20)),
                                   child: Center(
                                       child: Text(
-                                          "${orderdetailResponse.data!.orderDetails!.status}",style: TextStyle(color: Colors.orange),)),
+                                    "${orderdetailResponse.data!.orderDetails!.status}",
+                                    style: TextStyle(color: Colors.orange),
+                                  )),
                                 ),
                                 Container(
                                   margin: EdgeInsets.only(top: 20, bottom: 20),
@@ -659,13 +663,7 @@ class _OrderDetailsState extends State<OrderDetails> {
                                 )
                               ],
                             ),
-                            if (orderdetailResponse
-                                    .data!.dropOffDetails!.expectedDeliveryTs !=
-                                null)
-                              DeliveryTimerWidget(
-                                deliveryTime: orderdetailResponse
-                                    .data!.dropOffDetails!.expectedDeliveryTs!,
-                              ),
+                            buildTimer(),
                           ],
                         ),
                       ),
@@ -740,7 +738,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
                     /// ✅ ONLY PICKED UP CASE
                     else if (status == "Picked Up") ...[
-                          const Spacer(),
+                      const Spacer(),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.of(context).push(
@@ -785,6 +783,21 @@ class _OrderDetailsState extends State<OrderDetails> {
             : null,
       );
     }
+  }
+
+  Widget buildTimer() {
+    final expectedTs =
+        orderdetailResponse.data?.dropOffDetails?.expectedDeliveryTs;
+
+    return expectedTs != null
+        ? DeliveryTimerWidget(deliveryTime: expectedTs)
+        : const SizedBox(
+            height: 80,
+            width: 80,
+            child: Center(
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
   }
 
   void setPickupData(OrderDetailResponse orderdetailResponse) {
@@ -1144,6 +1157,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
       Navigator.pop(context, true); // 🔄 trigger reload
     }
+    return null;
   }
 
   Future<CommonResponse?> callOrderDeliveryWithProof(BuildContext context,
@@ -1174,6 +1188,7 @@ class _OrderDetailsState extends State<OrderDetails> {
       Navigator.pop(context, true); // 🔄 trigger reload
       Navigator.pop(context, true); // 🔄 trigger reload
     }
+    return null;
   }
 
   Future<CommonResponse?> callDropOrderApiwithSignature(BuildContext context,
@@ -1198,6 +1213,7 @@ class _OrderDetailsState extends State<OrderDetails> {
 
       Navigator.pop(context, true); // 🔄 trigger reload
     }
+    return null;
   }
 
   Future<void> makePhoneCall(String phoneNumber) async {

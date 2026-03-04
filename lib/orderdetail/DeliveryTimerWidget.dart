@@ -16,6 +16,7 @@ class DeliveryTimerWidget extends StatefulWidget {
 
 class _DeliveryTimerWidgetState extends State<DeliveryTimerWidget> {
   Timer? _timer;
+  late DateTime expectedTime;
 
   int totalSeconds = 0;
   int remainingSeconds = 0;
@@ -27,50 +28,41 @@ class _DeliveryTimerWidgetState extends State<DeliveryTimerWidget> {
     _startDeliveryTimer(widget.deliveryTime);
   }
 
-   void _startDeliveryTimer(String time) {
+  void _startDeliveryTimer(String time) {
   _timer?.cancel();
 
+  expectedTime = DateFormat("yyyy-MM-dd HH:mm:ss").parse(time);
+
   final now = DateTime.now();
-  final expected = DateFormat("yyyy-MM-dd HH:mm:ss").parse(time);
-
-  final diffSeconds = expected.difference(now).inSeconds;
-
-  if (diffSeconds <= 0) {
-    setState(() {
-      isExpired = true;
-      remainingSeconds = 0;
-    });
-    return;
-  }
-
-  // 🔥 EXACT ANDROID LOGIC
-  final days = diffSeconds ~/ (24 * 3600);
-  final remainingAfterDays = diffSeconds - (days * 24 * 3600);
-
-  final hours = remainingAfterDays ~/ 3600;
-  final minutes = (remainingAfterDays - (hours * 3600)) ~/ 60;
-  final seconds = remainingAfterDays % 60;
-
-  // ✅ Android-style total seconds (NO DAYS)
-  totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
-  remainingSeconds = totalSeconds;
+  totalSeconds = expectedTime.difference(now).inSeconds;
+  if (totalSeconds < 0) totalSeconds = 0;
 
   _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-    if (remainingSeconds <= 0) {
-      timer.cancel();
-      setState(() => isExpired = true);
-    } else {
-      setState(() => remainingSeconds--);
-    }
+    final now = DateTime.now();
+    final diffSeconds = expectedTime.difference(now).inSeconds;
+
+    setState(() {
+      remainingSeconds = diffSeconds;
+      isExpired = diffSeconds < 0;
+    });
   });
 }
 
 
-  String get formattedTime {
-    final minutes = remainingSeconds ~/ 60;
-    final seconds = remainingSeconds % 60;
-    return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
-  }
+ String get formattedTime {
+  final isNegative = remainingSeconds < 0;
+  final absSeconds = remainingSeconds.abs();
+
+  // ✅ Android-style: ignore hours & days
+  final secondsInHour = absSeconds % 3600;
+  final minutes = secondsInHour ~/ 60;
+  final seconds = secondsInHour % 60;
+
+  final time =
+      "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+
+  return isNegative ? "-$time" : time;
+}
 
   @override
   void dispose() {
@@ -80,8 +72,11 @@ class _DeliveryTimerWidgetState extends State<DeliveryTimerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final progress =
-        totalSeconds == 0 ? 0.0 : remainingSeconds / totalSeconds;
+    final progress = totalSeconds <= 0
+        ? 0.0
+        : remainingSeconds > 0
+            ? remainingSeconds / totalSeconds
+            : 0.0;
 
     return Column(
       children: [
@@ -90,7 +85,6 @@ class _DeliveryTimerWidgetState extends State<DeliveryTimerWidget> {
           style: TextStyle(fontSize: 16, color: Colors.grey),
         ),
         const SizedBox(height: 10),
-
         Stack(
           alignment: Alignment.center,
           children: [
@@ -106,7 +100,6 @@ class _DeliveryTimerWidgetState extends State<DeliveryTimerWidget> {
                 ),
               ),
             ),
-
             Column(
               children: [
                 Text(

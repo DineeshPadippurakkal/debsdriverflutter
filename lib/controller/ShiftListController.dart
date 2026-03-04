@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:debs_driver_app/Utils/Utils.dart';
 import 'package:debs_driver_app/checkin/model/CheckinResponse.dart';
 import 'package:debs_driver_app/home/model/LogoutResponse.dart';
-import 'package:debs_driver_app/model/ShiftResponse.dart';
+import 'package:debs_driver_app/home/model/ShiftResponse.dart';
 
 import 'package:http/http.dart' as http;
 

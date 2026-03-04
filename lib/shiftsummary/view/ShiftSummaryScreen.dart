@@ -1,7 +1,9 @@
+
 import 'package:debs_driver_app/Utils/color.dart';
 import 'package:debs_driver_app/shiftsummary/controller/ShiftSummaryController.dart';
 import 'package:debs_driver_app/shiftsummary/model/ShiftSummaryResponse.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ShiftSummaryScreen extends StatefulWidget {
   const ShiftSummaryScreen({super.key});
@@ -11,6 +13,7 @@ class ShiftSummaryScreen extends StatefulWidget {
 }
 
 class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
+  // late String selectedDate;
   String selectedDate = "20 Mar 2022 - 15 Apr 2022";
 
   bool isloading = false;
@@ -19,7 +22,13 @@ class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
   @override
   void initState() {
     super.initState();
-    fetchShiftSummary();
+    final now = DateTime.now();
+     final endDate = _safeEndDate();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+
+    selectedDate = "${_formatDate(firstDayOfMonth)} - ${_formatDate(endDate)}";
+
+    fetchShiftSummary(_formatDate(firstDayOfMonth), _formatDate(endDate));
   }
 
   @override
@@ -96,7 +105,7 @@ class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
             onPressed: () {
-              // open calendar
+              _openDateRangePicker();
             },
             icon: const Icon(
               Icons.edit,
@@ -246,7 +255,8 @@ class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Column( crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
@@ -262,11 +272,9 @@ class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
                       color: ColorTheme().colorPrimary,
                     ),
                   ),
- 
                 ],
               ),
             ),
- 
 
             // ===== SUMMARY SECTION =====
             Container(
@@ -326,10 +334,10 @@ class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
         const SizedBox(height: 6),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.blueAccent,
+            color: ColorTheme().bluedark,
           ),
         ),
       ],
@@ -348,7 +356,7 @@ class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
         children: [
           Text(
             title,
-            style:   TextStyle(
+            style: TextStyle(
               fontSize: 12,
               color: ColorTheme().bluedark,
             ),
@@ -356,7 +364,7 @@ class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
           const SizedBox(height: 4),
           Text(
             value,
-            style:   TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: ColorTheme().bluedark,
@@ -367,13 +375,16 @@ class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
     );
   }
 
-  Future<void> fetchShiftSummary() async {
+  Future<void> fetchShiftSummary(String start, String end) async {
     try {
       setState(() {
         isloading = true;
       });
-      final data = await Shiftsummarycontroller()
-          .fetchShiftSummary(context, "2026-01-01", "2026-01-25");
+      final data = await Shiftsummarycontroller().fetchShiftSummary(
+        context,
+        start,
+        end,
+      );
       if (data != null) {
         setState(() {
           shiftSummaryResponse = data;
@@ -390,5 +401,51 @@ class _ShiftSummaryScreenState extends State<ShiftSummaryScreen> {
       });
       rethrow;
     }
+  }
+
+   
+
+  Future<void> _openDateRangePicker() async {
+     final now = DateTime.now();
+  final safeEndDate = DateTime(now.year, now.month, now.day - 1);
+ 
+     final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    DateTimeRange? pickedRange = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      initialDateRange: DateTimeRange(
+        start: firstDayOfMonth,
+        end:safeEndDate,
+      ),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: ColorTheme().colorPrimary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedRange != null) {
+      final start = pickedRange.start;
+      final end = pickedRange.end;
+
+      setState(() {
+        selectedDate = "${_formatDate(start)} - ${_formatDate(end)}";
+      });
+
+      fetchShiftSummary(_formatDate(start), _formatDate(end));
+    }
+  }
+DateTime _safeEndDate() {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, now.day - 1);
+}
+  String _formatDate(DateTime date) {
+    return DateFormat('yyyy-MM-dd').format(date);
   }
 }

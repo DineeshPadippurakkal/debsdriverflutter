@@ -12,4 +12,6 @@ class ColorTheme {
 
   final Color lightgrey= const Color.fromARGB(255, 231, 230, 230);
   final Color colorPrimarydark= const Color.fromARGB(255, 49, 162, 207);
+
+  final Color colorPrimarylight= const Color.fromARGB(164, 83, 202, 249);
 } 

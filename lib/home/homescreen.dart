@@ -1,15 +1,23 @@
+
+import 'package:debs_driver_app/ChangePassword/view/ChangePasswordScreen.dart';
 import 'package:debs_driver_app/OrderHistory/view/OrderHistory.dart';
 import 'package:debs_driver_app/Utils/color.dart';
 import 'package:debs_driver_app/Utils/sqldata.dart';
 import 'package:debs_driver_app/controller/ShiftListController.dart';
-import 'package:debs_driver_app/login_screen.dart';
-import 'package:debs_driver_app/model/ShiftResponse.dart';
+import 'package:debs_driver_app/home/homescreencontroller/HomeScreenController.dart';
+import 'package:debs_driver_app/home/model/ProfileDetailsResponse.dart';
+import 'package:debs_driver_app/issue/view/ReportISsue.dart';
+import 'package:debs_driver_app/login/login_screen.dart';
+import 'package:debs_driver_app/main.dart';
+import 'package:debs_driver_app/home/model/ShiftResponse.dart';
 import 'package:debs_driver_app/orders/OrdersListScreen.dart';
+import 'package:debs_driver_app/privacypolicy/PrivacyPolicyScreen.dart';
+import 'package:debs_driver_app/shiftSelection/view/AvailableShiftScreen.dart';
 import 'package:debs_driver_app/shiftsummary/view/ShiftSummaryScreen.dart';
 import 'package:debs_driver_app/wallet/WalletScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'checkin/Shift_Checkin_Screen.dart';
+import '../checkin/Shift_Checkin_Screen.dart';
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
@@ -21,12 +29,44 @@ class Homescreen extends StatefulWidget {
 class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
   String? username;
   String? token;
-  late TabController controller;
+
+  bool isloading = false;
+  TabController? controller;
+
+  ProfileDetailsResponse profileDetailsResponse = ProfileDetailsResponse();
+  final Homescreencontroller homescreencontroller = Homescreencontroller();
+
   @override
   void initState() {
     super.initState();
     loaddata();
     controller = TabController(length: 2, initialIndex: 0, vsync: this);
+    callProfileApi();
+  }
+
+  Future<void> callProfileApi() async {
+    try {
+      setState(() {
+        isloading = true;
+      });
+
+      final data = await homescreencontroller.getProfileDetails(context);
+      if (data != null) {
+        setState(() {
+          isloading = false;
+          profileDetailsResponse = data;
+        });
+      } else {
+        setState(() {
+          isloading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isloading = false;
+      });
+      rethrow;
+    }
   }
 
   Future<void> loaddata() async {
@@ -57,10 +97,16 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
     {'icon': Icons.lock, 'title': 'Change Password'},
     {'icon': Icons.language, 'title': 'English/Arabic'},
     {'icon': Icons.logout, 'title': 'Logout'},
-  ];
-  List names = ["Gokul", "helo", "loki"];
+  ]; 
   @override
   Widget build(BuildContext context) {
+    final profileData = profileDetailsResponse.data;
+    if (isloading && profileDetailsResponse.data == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -93,6 +139,7 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
       //     ],),
       //   ),
       // ),
+
       drawer: Drawer(
         child: Column(
           children: [
@@ -103,7 +150,7 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                 color: ColorTheme().colorPrimarydark,
               ),
               currentAccountPicture: Container(
-                margin: EdgeInsets.only(bottom: 20),
+                margin: const EdgeInsets.only(bottom: 20),
                 child: CircleAvatar(
                   backgroundColor: Colors.white,
                   child: Icon(
@@ -114,18 +161,30 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                 ),
               ),
               accountName: Text(
-                "John Doe",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                profileData == null
+                    ? "Loading..."
+                    : "${profileData.firstName ?? ''} ${profileData.lastName ?? ''}",
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               accountEmail: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("john.doe@example.com", style: TextStyle(fontSize: 14)),
-                  SizedBox(height: 4),
-                  Text("Driver ID: DR12345", style: TextStyle(fontSize: 14)),
+                  Text(
+                    profileData?.email ?? "",
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    profileData == null ? "" : "Driver ID: ${profileData.id}",
+                    style: const TextStyle(fontSize: 14),
+                  ),
                 ],
               ),
             ),
+
             SizedBox(
               height: 10,
             ),
@@ -149,7 +208,7 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                           color: isSelected ? Colors.white : Colors.black),
                     ),
                     tileColor: isSelected ? ColorTheme().colorPrimary : null,
-                    onTap: () {
+                    onTap: () async {
                       setState(() {
                         selectedIndex = index;
                       });
@@ -164,18 +223,18 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                                   builder: (context) => Orderhistory()));
                           break;
 
-                        case "Leaves":
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Orderhistory()));
-                          break;
+                        // case "Leaves":
+                        //   Navigator.push(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //           builder: (context) => Orderhistory()));
+                        //   break;
 
                         case "Shifts":
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Orderhistory()));
+                                  builder: (context) => AvailableShiftScreen()));
                           break;
 
                         case "Wallet":
@@ -201,19 +260,17 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Orderhistory()));
+                                  builder: (context) => ReportIssueScreen()));
                           break;
                         case "Change Password":
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => Orderhistory()));
+                                  builder: (context) =>
+                                      Changepasswordscreen()));
                           break;
                         case "English/Arabic":
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Orderhistory()));
+                          MyApp.showLanguageDialog(context, force: true);
                           break;
                         case "Logout":
                           logoutAlert(context);
@@ -234,7 +291,23 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text("v1.0.0", style: TextStyle(color: Colors.black)),
-                  Text("Privacy Policy", style: TextStyle(color: Colors.black)),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Privacypolicyscreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "Privacy Policy",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -323,13 +396,13 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
   Future<void> callLogout() async {
     var response = await shiftlistcontroller.callLogoutApi();
     if (response!.status!) {
-        final SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('username', "");
-          await prefs.setString('password', "");
-          await prefs.setString('logindata', "");
-          await prefs.setString('token',"");
-          await prefs.setInt('driverID', 0);
-         
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('username', "");
+      await prefs.setString('password', "");
+      await prefs.setString('logindata', "");
+      await prefs.setString('token', "");
+      await prefs.setInt('driverID', 0);
+
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => LoginScreen()));
     }
