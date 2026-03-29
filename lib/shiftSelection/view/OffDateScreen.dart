@@ -51,18 +51,18 @@ class _OffDateScreenState extends State<OffDateScreen> {
 
     setState(() => isSubmitting = true);
 
-    // final success = await Shitslectioncontroller()
-    //     .submitOffDate(context, selectedId!);
+    final success = await Shitslectioncontroller()
+        .submitOffDate(context, selectedId!);
 
     setState(() => isSubmitting = false);
 
-    // if (success == true) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(content: Text("Off Date Selected Successfully")),
-    //   );
+    if (success == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Off Date Selected Successfully")),
+      );
 
-    //   Navigator.pop(context, true); // return success
-    // }
+      Navigator.pop(context, true);  
+    }
   }
 
   @override

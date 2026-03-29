@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:debs_driver_app/Utils/color.dart';
 import 'package:debs_driver_app/shiftSelection/controller/ShitSlectionController.dart';
-import 'package:debs_driver_app/shiftSelection/model/AvialableShiftResponse.dart'; 
+import 'package:debs_driver_app/shiftSelection/model/AvialableShiftResponse.dart';
+import 'package:debs_driver_app/shiftSelection/view/OffDateScreen.dart'; 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -35,7 +36,7 @@ class _AvailableShiftScreenState extends State<AvailableShiftScreen> {
 
     if (response != null && response.status == true) {
       setState(() {
-        shifts = response.data ?? [];   // 👈 STORE LIST HERE
+        shifts = response.data ?? [];  
         isLoading = false;
       });
     } else {
@@ -50,8 +51,38 @@ class _AvailableShiftScreenState extends State<AvailableShiftScreen> {
     return DateFormat("dd MMM yyyy").format(parsedDate);
   }
 
-  Widget shiftCard(Data shift) {   // 👈 Use Data model
-    return Card(
+ Widget shiftCard(Data shift) {
+  return GestureDetector(
+    onTap: () async {
+
+      // 👉 Navigate only if off date NOT selected
+      if (shift.isOffDateSelected == false) {
+
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => OffDateScreen(
+              weekScheduleId: shift.weekSchedule!,
+            ),
+          ),
+        );
+
+        // 👉 Refresh shifts after selecting off date
+        if (result == true) {
+          fetchShifts();
+        }
+
+      } else {
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Off date already selected for this shift"),
+          ),
+        );
+
+      }
+    },
+    child: Card(
       elevation: 3,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(
@@ -90,43 +121,14 @@ class _AvailableShiftScreenState extends State<AvailableShiftScreen> {
               ],
             ),
             const SizedBox(height: 10),
-            if (shift.isOffDateSelected == false)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade100,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  "Available",
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
-            else
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  "Off",
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              )
+
+           
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
