@@ -17,6 +17,7 @@ class DriverReached extends OrderDetailsEvent {
   @override
   List<Object> get props => [];
 }
+
 class OrderPickedUp extends OrderDetailsEvent {
   const OrderPickedUp();
 
@@ -48,4 +49,10 @@ class OrderDroppedWithProof extends OrderDetailsEvent {
   List<Object?> get props => [amountDueOnDelivery];
 }
 
+class DeliveryProofPicked extends OrderDetailsEvent {
+  final File proof;
 
+  const DeliveryProofPicked(this.proof);
+  @override
+  List<Object> get props => [proof];
+}

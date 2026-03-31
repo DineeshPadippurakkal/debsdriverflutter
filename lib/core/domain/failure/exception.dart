@@ -95,3 +95,7 @@ class CannotLaunchUriException extends AppException {
 class NotNearToSupplierException extends AppException {
   NotNearToSupplierException({super.slug, super.stackTrace, super.exception, super.message});
 }
+
+class NoImagePickedException extends AppException {
+  NoImagePickedException({super.slug, super.stackTrace, super.exception, super.message});
+}

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -9,6 +10,7 @@ import 'package:debs_driver_app/core/domain/failure/exception.dart';
 import 'package:debs_driver_app/features/order/application/order_details_args.dart';
 import 'package:debs_driver_app/features/order/domain/entities/order_details.dart';
 import 'package:debs_driver_app/features/order/domain/repos/orders_repo.dart';
+import 'package:debs_driver_app/features/order/infrastructure/dtos/drop_order_dto.dart';
 import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 
@@ -33,10 +35,10 @@ class OrderDetailsBloc
     on<OrderDetailsLoaded>(_onOrderDetailsLoaded);
     on<DriverReached>(_onDriverReached);
     on<OrderPickedUp>(_onOrderPickedUp);
-    on <OrderDropped>(_onOrderDropped);
+    on<OrderDropped>(_onOrderDropped);
     on<OrderDroppedWithAmount>(_onOrderDroppedWithAmount);
     on<OrderDroppedWithProof>(_onOrderDroppedWithProof);
-
+    on<DeliveryProofPicked>(_onDeliveryProofPicked);
   }
 
   Future<void> _onOrderDetailsLoaded(
@@ -64,16 +66,39 @@ class OrderDetailsBloc
     viewContract.handleDropOrder(result);
   }
 
-  Future<void> _onOrderDroppedWithAmount(OrderDroppedWithAmount event, Emitter<OrderDetailsState> emit) async {
+  Future<void> _onOrderDroppedWithAmount(
+      OrderDroppedWithAmount event, Emitter<OrderDetailsState> emit) async {
     final result = await _repo.dropOrderWithAmount(arguments.orderID!, event.amountDueOnDelivery);
     viewContract.handleDropOrderWithAmount(result);
   }
 
-  Future<void> _onOrderDroppedWithProof(OrderDroppedWithProof event, Emitter<OrderDetailsState> emit) async {
-    final result = await _repo.dropOrderWithProof(arguments.orderID!, amountDue: event.amountDueOnDelivery);
+  Future<void> _onOrderDroppedWithProof(
+      OrderDroppedWithProof event, Emitter<OrderDetailsState> emit) async {
+    final proof = state.deliveryProof.toNullable();
+    final signatureProof = state.signatureProof.toNullable();
+
+    final result = await _repo.dropOrderWithProof(
+      DropOrderDto(
+        orderID: arguments.orderID!,
+        amountDue: event.amountDueOnDelivery,
+        deliveryImage: proof == null ? null : File(proof.path),
+        signatureFile: signatureProof == null
+            ? null
+            : File(signatureProof.path), // Assuming signature proof is not implemented yet
+      ),
+    );
     viewContract.handleDropOrderWithProof(result);
   }
 
+  Future<void> _onDeliveryProofPicked(
+      DeliveryProofPicked event, Emitter<OrderDetailsState> emit) async {
+    final result = await _repo.pickImageAndCompress();
 
-
+    result.fold(
+      (failure) {
+        return null;
+      }, // Optionally handle error via viewContract or state
+      (file) => emit(state.copyWith(deliveryProof: some(file))),
+    );
+  }
 }

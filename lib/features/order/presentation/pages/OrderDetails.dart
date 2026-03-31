@@ -10,6 +10,7 @@ import 'package:debs_driver_app/core/presentation/overlay/overlay_manager.dart';
 import 'package:debs_driver_app/core/presentation/widgets/state_widgets.dart';
 import 'package:debs_driver_app/features/order/application/controllers/order_details_bloc/order_details_bloc.dart';
 import 'package:debs_driver_app/features/order/application/order_details_args.dart';
+import 'package:debs_driver_app/features/order/presentation/overlay/delivery_proof_dialog.dart';
 import 'package:debs_driver_app/features/order/presentation/widgets/DeliveryTimerWidget.dart';
 import 'package:debs_driver_app/features/order/presentation/widgets/HolderOrder.dart';
 import 'package:debs_driver_app/features/order/presentation/widgets/PickupTimer.dart';
@@ -66,17 +67,8 @@ class _OrderDetailsState extends State<_OrderDetails> implements OrderDetailsVie
     return DateTime.parse(ts).millisecondsSinceEpoch;
   }
 
-  final SignatureController _signatureController = SignatureController(
-    penStrokeWidth: 3,
-    penColor: Colors.black,
-  );
   XFile? deliveryImage;
 
-  @override
-  void dispose() {
-    _signatureController.dispose();
-    super.dispose();
-  }
 
   bool isloading = false;
   @override
@@ -96,100 +88,6 @@ class _OrderDetailsState extends State<_OrderDetails> implements OrderDetailsVie
 
       refreshDialog();
     }
-  }
-
-  void fetchOrderDetails() async {
-    setState(() {
-      isloading = true;
-    });
-    //
-    // if (response != null) {
-    //   setState(() {
-    //     orderdetailResponse = response;
-    //     isloading = false;
-    //     if (orderdetailResponse.data!.pickupDetails != null) {
-    //       setPickupData(orderdetailResponse);
-    //     }
-    //
-    //     if (orderdetailResponse.data!.dropOffDetails != null) {
-    //       setDropOffData(orderdetailResponse.data!.dropOffDetails);
-    //       deliveryVisibile = true;
-    //       pickup_visible = false;
-    //     } else {
-    //       deliveryVisibile = false;
-    //     }
-    //   });
-    // } else {
-    //   setState(() {
-    //     isloading = false;
-    //   });
-    // }
-  }
-
-  Widget signatureView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min, // 🔑 IMPORTANT
-      children: [
-        const SizedBox(height: 8),
-        Container(
-          height: 200,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: Colors.white),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Signature(
-            height: 190,
-            controller: _signatureController,
-            backgroundColor: Colors.transparent,
-          ),
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: _signatureController.clear,
-            child: const Text("Clear"),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget deliveryProofView({required VoidCallback refreshDialog}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min, // 🔑 IMPORTANT
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () => pickDeliveryImage(refreshDialog),
-          child: Container(
-            height: 320,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: deliveryImage == null
-                ? const Center(
-                    child: Icon(Icons.camera_alt, size: 40),
-                  )
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      File(deliveryImage!.path),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-          ),
-        ),
-      ],
-    );
   }
 
   @override
@@ -306,63 +204,195 @@ class PremiumOrderDetails extends StatelessWidget {
           ],
         ),
         // button
-        _buildArriveButton(context)
+        Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(24, 20, 24, MediaQuery.of(context).padding.bottom + 20),
+              child: buildBottomButton(context),
+            ))
       ],
     );
   }
 
-  Widget _buildArriveButton(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.fromLTRB(24, 20, 24, MediaQuery.of(context).padding.bottom + 20),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.8), // Glass effect
-          border: Border(top: BorderSide(color: Colors.black.withOpacity(0.05))),
+  Widget buildBottomButton(BuildContext context) {
+    final status = order.orderDetails!.status!;
+    print('Current Order Status: $status'); // Debug print
+    switch (status) {
+      case 'Driver Reached':
+        return _buildPickupButton(context);
+      case 'Assigned':
+        return _buildArriveButton(context);
+      case 'Picked Up':
+        return _buildExceptionActionRow(context);
+
+      default:
+        return SizedBox.shrink();
+    }
+  }
+
+  Widget _buildExceptionActionRow(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        children: [
+          Expanded(child: _buildDropOrderButton(context)),
+          const SizedBox(width: 12),
+          Expanded(child: _buildHoldButton(context)),
+        ],
+      ),
+    );
+  }
+
+  // 2. The "Drop Order" Button (Danger Action)
+  Widget _buildDropOrderButton(BuildContext context) {
+    return SizedBox(
+      height: 50,
+      child: TextButton.icon(
+        onPressed: () {
+          showDialog(context: context, builder: (context) {
+            return DeliveryProofDialog(onTap: () {
+
+            }, image:  );
+          },);
+          // context.read<OrderDetailsBloc>().add(OrderDropped());
+        },
+        style: TextButton.styleFrom(
+          // Using a soft green "Success" theme
+          backgroundColor: Colors.green.withOpacity(0.08),
+          foregroundColor: Colors.green[700],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(color: Colors.green.withOpacity(0.2)),
+          ),
         ),
-        child: Container(
-          height: 60,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            gradient: const LinearGradient(
-              colors: [Color(0xFF2D63FF), Color(0xFF003CC5)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+        // "Done All" or "Check" icon implies completion
+        icon: const Icon(Icons.done_all_rounded, size: 20),
+        label: const Text(
+          "DROP ORDER",
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12, letterSpacing: 0.5),
+        ),
+      ),
+    );
+  }
+
+  // 3. The "Hold" Button (Neutral/Warning Action)
+  Widget _buildHoldButton(BuildContext context) {
+    return SizedBox(
+      height: 48,
+      child: TextButton.icon(
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => Holderorder(
+              orderID: order.orderDetails!.id,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF2D63FF).withOpacity(0.4),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+          ));
+        },
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.amber.withOpacity(0.1),
+          foregroundColor: Colors.orange[800],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        icon: const Icon(Icons.pause_circle_outline_rounded, size: 18),
+        label: const Text(
+          "HOLD",
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPickupButton(BuildContext context) {
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          colors: [Color(0xFF2D63FF), Color(0xFF003CC5)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueAccent.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ElevatedButton(
+        onPressed: () {
+          context.read<OrderDetailsBloc>().add(OrderPickedUp());
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 18),
+            SizedBox(width: 8),
+            Text(
+              "PICK UP",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 15,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildArriveButton(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.8), // Glass effect
+        border: Border(top: BorderSide(color: Colors.black.withOpacity(0.05))),
+      ),
+      child: Container(
+        height: 60,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF2D63FF), Color(0xFF003CC5)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF2D63FF).withOpacity(0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: ElevatedButton(
+          onPressed: () {
+            context.read<OrderDetailsBloc>().add(DriverReached());
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.gps_fixed, color: Colors.white, size: 20),
+              SizedBox(width: 12),
+              Text(
+                "I HAVE ARRIVED",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.1,
+                ),
               ),
             ],
-          ),
-          child: ElevatedButton(
-            onPressed: () {
-              context.read<OrderDetailsBloc>().add(DriverReached());
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.gps_fixed, color: Colors.white, size: 20),
-                SizedBox(width: 12),
-                Text(
-                  "I HAVE ARRIVED",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.1,
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
