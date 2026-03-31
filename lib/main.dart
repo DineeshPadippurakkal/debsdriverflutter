@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:ui';
+import 'package:debs_driver_app/core/infrastructure/injection/injection_setup.dart';
+import 'package:debs_driver_app/core/presentation/overlay/overlay_manager.dart';
 import 'package:debs_driver_app/notification/DriverAlertScreen.dart';
 import 'package:intl/intl.dart';
 
@@ -34,8 +36,7 @@ Future<void> initLocalNotifications() async {
   const AndroidInitializationSettings androidSettings =
       AndroidInitializationSettings('@mipmap/ic_launcher');
 
-  const InitializationSettings settings =
-      InitializationSettings(android: androidSettings);
+  const InitializationSettings settings = InitializationSettings(android: androidSettings);
 
   await flutterLocalNotificationsPlugin.initialize(
     settings: settings,
@@ -53,13 +54,13 @@ Future<void> createNotificationChannel() async {
   );
 
   await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await configureDependencies();
 
   await initLocalNotifications();
   await createNotificationChannel();
@@ -161,11 +162,11 @@ void onStart(ServiceInstance service) async {
       desiredAccuracy: LocationAccuracy.high,
     );
     final uniqueID = const Uuid().v4();
-     final createdAt =
-        DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now());
+    final createdAt = DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now());
 
-    DatabaseReference ref =
-        FirebaseDatabase.instance.ref("drivers-location/") .child(driverID.toString())
+    DatabaseReference ref = FirebaseDatabase.instance
+        .ref("drivers-location/")
+        .child(driverID.toString())
         .child(uniqueID);
 
     await ref.set({
@@ -268,6 +269,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      scaffoldMessengerKey: OverlayManager.instance.scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       title: 'allow driver',
       // 🌍 LANGUAGE CONFIG
@@ -320,8 +322,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  Future<void> _showLanguageDialogIfNeeded(BuildContext context,
-      {bool force = false}) async {
+  Future<void> _showLanguageDialogIfNeeded(BuildContext context, {bool force = false}) async {
     final prefs = await SharedPreferences.getInstance();
     final savedLang = prefs.getString('language_code');
 
@@ -391,8 +392,7 @@ class _MyAppState extends State<MyApp> {
                     Icons.language,
                     color: Colors.white,
                   ),
-                  title: const Text('العربية',
-                      style: TextStyle(color: Colors.white)),
+                  title: const Text('العربية', style: TextStyle(color: Colors.white)),
                   onTap: () {
                     MyApp.setLocale(
                       Navigator.of(context, rootNavigator: true).context,
@@ -411,3 +411,50 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
+final x = {
+  "status": true,
+  "message": "Success",
+  "data": {
+    "order_details": {
+      "id": 32057,
+      "reference_id": null,
+      "task_id": 24077,
+      "status": "Driver Reached",
+      "date": "2026-03-30",
+      "time": "03:07 PM",
+      "day": "Monday",
+      "is_acknowledged": true,
+      "payment_type": "Online",
+      "payment_amount": 3333.0,
+      "amount_due_on_delivery": 0.0,
+      "need_delivery_proof": true,
+      "need_signature": true,
+      "items_details": [],
+      "collection_method": "Collect",
+      "order_alerts": []
+    },
+    "pickup_details": {
+      "name": "Culinary Fusion catering company - Hawally",
+      "mobile": "99996438",
+      "logo":
+          "http://staging.allowmena.com/media/supplier/logo/d97177441fff47fdb333b59a628818d1.jpeg",
+      "latitude": 29.3456636,
+      "longitude": 48.0122536,
+      "state": "Hawally",
+      "area": "Hawally",
+      "block": "Block 1",
+      "building": "sondos complex Floor 1 Kitchen 34",
+      "street": "Abdullah Al Othman",
+      "pickup_postal_code": null,
+      "landmark": null,
+      "house_number": null,
+      "flat": null,
+      "city": null,
+      "floor": null,
+      "instructions": {"attachments": [], "notes": ""},
+      "expected_pickup_reach_ts": "2026-03-30 15:25:50"
+    },
+    "drop_off_details": {}
+  }
+};

@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:debs_driver_app/ChangePassword/model/ChangePasswordRequest.dart';
 import 'package:debs_driver_app/Utils/Utils.dart';
-import 'package:debs_driver_app/orderdetail/model/CommonResponse.dart';
+import 'package:debs_driver_app/temp/CommonResponse.dart';
 
 import 'package:http/http.dart' as http;
 

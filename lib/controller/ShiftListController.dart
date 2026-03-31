@@ -16,8 +16,7 @@ class Shiftlistcontroller {
     final url = Uri.parse("$baseUrl/driver/shifts?date=$date");
     String? token = await Utils().getToken();
     try {
-      final response =
-          await http.get(url, headers: {'Authorization': '$token'});
+      final response = await http.get(url, headers: {'Authorization': '$token'});
       // print(url);
       // print('this is the status code ${response.statusCode}');
       // print('this is the status code ${response.body}');
@@ -47,6 +46,8 @@ class Shiftlistcontroller {
         },
         body: jsonEncode({
           "slot_id": slotID,
+          "latitude": 10.3951032,
+          "longitude": 76.1015804,
         }),
       );
 
@@ -81,3 +82,50 @@ class Shiftlistcontroller {
     }
   }
 }
+
+final x = {
+  "status": true,
+  "message": "Success",
+  "data": {
+    "order_details": {
+      "id": 32057,
+      "reference_id": null,
+      "task_id": 24077,
+      "status": "Assigned",
+      "date": "2026-03-30",
+      "time": "03:07 PM",
+      "day": "Monday",
+      "is_acknowledged": true,
+      "payment_type": "Online",
+      "payment_amount": 3333.0,
+      "amount_due_on_delivery": 0.0,
+      "need_delivery_proof": true,
+      "need_signature": true,
+      "items_details": [],
+      "collection_method": "Collect",
+      "order_alerts": []
+    },
+    "pickup_details": {
+      "name": "Culinary Fusion catering company - Hawally",
+      "mobile": "99996438",
+      "logo":
+          "http://staging.allowmena.com/media/supplier/logo/d97177441fff47fdb333b59a628818d1.jpeg",
+      "latitude": 29.3456636,
+      "longitude": 48.0122536,
+      "state": "Hawally",
+      "area": "Hawally",
+      "block": "Block 1",
+      "building": "sondos complex Floor 1 Kitchen 34",
+      "street": "Abdullah Al Othman",
+      "pickup_postal_code": null,
+      "landmark": null,
+      "house_number": null,
+      "flat": null,
+      "city": null,
+      "floor": null,
+      "instructions": {"attachments": [], "notes": ""},
+      "expected_pickup_reach_ts": "2026-03-30 15:25:50"
+    },
+    "drop_off_details": {}
+  }
+};

@@ -1,7 +1,7 @@
 class HoldOrderReasonResponse {
   bool? status;
   String? message;
-  List<Data>? data;
+  List<HoldOrderReason>? data;
 
   HoldOrderReasonResponse({this.status, this.message, this.data});
 
@@ -9,9 +9,9 @@ class HoldOrderReasonResponse {
     status = json['status'];
     message = json['message'];
     if (json['data'] != null) {
-      data = <Data>[];
+      data = <HoldOrderReason>[];
       json['data'].forEach((v) {
-        data!.add(Data.fromJson(v));
+        data!.add(HoldOrderReason.fromJson(v));
       });
     }
   }
@@ -27,13 +27,13 @@ class HoldOrderReasonResponse {
   }
 }
 
-class Data {
+class HoldOrderReason {
   String? label;
   int? id;
 
-  Data({this.label, this.id});
+  HoldOrderReason({this.label, this.id});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  HoldOrderReason.fromJson(Map<String, dynamic> json) {
     label = json['label'];
     id = json['id'];
   }

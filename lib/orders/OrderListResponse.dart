@@ -20,6 +20,18 @@ class OrderListResponse {
     }
     return data;
   }
+
+  // mock data
+  factory OrderListResponse.mock() {
+    return OrderListResponse(
+      status: true,
+      message: "Orders fetched successfully",
+      data: Data(
+        tasks: [Tasks.mock()],
+        actions: [Actions.mock()],
+      ),
+    );
+  }
 }
 
 class Data {
@@ -72,9 +84,8 @@ class Tasks {
       this.orders});
 
   Tasks.fromJson(Map<String, dynamic> json) {
-    pickupDetails = json['pickup_details'] != null
-        ? PickupDetails.fromJson(json['pickup_details'])
-        : null;
+    pickupDetails =
+        json['pickup_details'] != null ? PickupDetails.fromJson(json['pickup_details']) : null;
     isActive = json['is_active'];
     isAcknowledged = json['is_acknowledged'];
     isMultiple = json['is_multiple'];
@@ -101,6 +112,39 @@ class Tasks {
     }
     return data;
   }
+
+  // mock data
+  factory Tasks.mock() {
+    return Tasks(
+      pickupDetails: PickupDetails(
+        area: "Downtown",
+        name: "John Doe",
+        mobile: "1234567890",
+        logo: "https://example.com/logo.png",
+        latitude: 37.7749,
+        longitude: -122.4194,
+      ),
+      isActive: true,
+      isAcknowledged: false,
+      isMultiple: false,
+      taskId: 1,
+      orders: [
+        Orders(
+          referenceId: "ORD123",
+          date: "2024-06-01",
+          time: "12:00 PM",
+          day: "Monday",
+          priority: 1,
+          area: "Downtown",
+          amount: 100.0,
+          isActive: true,
+          collectionMethod: "Cash",
+          id: 1,
+          status: "Pending",
+        ),
+      ],
+    );
+  }
 }
 
 class PickupDetails {
@@ -111,13 +155,7 @@ class PickupDetails {
   double? latitude;
   double? longitude;
 
-  PickupDetails(
-      {this.area,
-      this.name,
-      this.mobile,
-      this.logo,
-      this.latitude,
-      this.longitude});
+  PickupDetails({this.area, this.name, this.mobile, this.logo, this.latitude, this.longitude});
 
   PickupDetails.fromJson(Map<String, dynamic> json) {
     area = json['area'];
@@ -137,6 +175,18 @@ class PickupDetails {
     data['latitude'] = latitude;
     data['longitude'] = longitude;
     return data;
+  }
+  // mock
+
+  factory PickupDetails.mock() {
+    return PickupDetails(
+      area: "Downtown",
+      name: "John Doe",
+      mobile: "1234567890",
+      logo: "https://example.com/logo.png",
+      latitude: 37.7749,
+      longitude: -122.4194,
+    );
   }
 }
 
@@ -175,7 +225,7 @@ class Orders {
     area = json['area'];
     amount = json['amount'];
     isActive = json['is_active'];
-    collectionMethod=json['collection_method'];
+    collectionMethod = json['collection_method'];
     id = json['id'];
     status = json['status'];
   }
@@ -190,7 +240,7 @@ class Orders {
     data['area'] = area;
     data['amount'] = amount;
     data['is_active'] = isActive;
-     data['collection_method'] = collectionMethod;
+    data['collection_method'] = collectionMethod;
     data['id'] = id;
     data['status'] = status;
     return data;
@@ -219,5 +269,16 @@ class Actions {
     data['action_label'] = actionLabel;
     data['order_id'] = orderId;
     return data;
+  }
+
+  // mock
+
+  factory Actions.mock() {
+    return Actions(
+      taskId: 1,
+      actionId: 1,
+      actionLabel: "Start Task",
+      orderId: 1,
+    );
   }
 }

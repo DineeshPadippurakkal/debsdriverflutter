@@ -3,8 +3,9 @@ import 'dart:ui';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:debs_driver_app/Utils/color.dart';
+import 'package:debs_driver_app/features/order/application/order_details_args.dart';
 import 'package:debs_driver_app/notification/driver_background_service.dart';
-import 'package:debs_driver_app/orderdetail/OrderDetails.dart';
+import 'package:debs_driver_app/features/order/presentation/pages/OrderDetails.dart';
 import 'package:debs_driver_app/orders/AcknowledgementReq.dart';
 import 'package:debs_driver_app/orders/OrderListController.dart';
 import 'package:debs_driver_app/orders/OrderListResponse.dart';
@@ -23,8 +24,7 @@ class OrdersListScreen extends StatefulWidget {
   State<OrdersListScreen> createState() => _OrdersListScreenState();
 }
 
-class _OrdersListScreenState extends State<OrdersListScreen>
-    with SingleTickerProviderStateMixin {
+class _OrdersListScreenState extends State<OrdersListScreen> with SingleTickerProviderStateMixin {
   final AudioPlayer _audioPlayer = AudioPlayer();
   final Orderlistcontroller _orderlistcontroller = Orderlistcontroller();
   OrderListResponse? response;
@@ -110,15 +110,12 @@ class _OrdersListScreenState extends State<OrdersListScreen>
           },
           child: isloading
               ? Center(child: CircularProgressIndicator())
-              : response == null ||
-                      response!.data?.tasks == null ||
-                      response!.data!.tasks!.isEmpty
+              : response == null || response!.data?.tasks == null || response!.data!.tasks!.isEmpty
                   ? Center(
                       child: Container(
                           padding: EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                              border:
-                                  Border.all(color: ColorTheme().colorPrimary),
+                              border: Border.all(color: ColorTheme().colorPrimary),
                               borderRadius: BorderRadius.circular(10)),
                           child: Text("No Orders")))
                   : ListView.builder(
@@ -133,31 +130,25 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                         final isMultiple = task.isMultiple ?? false;
                         final orders = task.orders ?? [];
                         // 🔹 Define color palette based on active/inactive state
-                        final Color textColor =
-                            isActive ? Colors.black : Colors.grey;
-                        final Color iconColor =
-                            isActive ? Colors.redAccent : Colors.grey;
-                        final Color borderColor =
-                            isActive ? Colors.blue : Colors.grey;
-                        final Color statusColor =
-                            isActive ? Colors.blue : Colors.grey;
-                        final Color bgColor =
-                            isActive ? Colors.white : Colors.grey.shade200;
-                        final Color boxColor = isActive
-                            ? Colors.blue.shade50
-                            : Colors.grey.shade300;
+                        final Color textColor = isActive ? Colors.black : Colors.grey;
+                        final Color iconColor = isActive ? Colors.redAccent : Colors.grey;
+                        final Color borderColor = isActive ? Colors.blue : Colors.grey;
+                        final Color statusColor = isActive ? Colors.blue : Colors.grey;
+                        final Color bgColor = isActive ? Colors.white : Colors.grey.shade200;
+                        final Color boxColor =
+                            isActive ? Colors.blue.shade50 : Colors.grey.shade300;
 
-                        return Consumer<NotificationProvider>(
-                            builder: (context, provider, data) {
+                        return Consumer<NotificationProvider>(builder: (context, provider, data) {
                           return GestureDetector(
                             onTap: () async {
                               print("task id = ${task.taskId}");
                               print("order id = ${orders.first.id}");
-                              final shouldReload = await Navigator.of(context)
-                                  .push(MaterialPageRoute(
+                              final shouldReload =
+                                  await Navigator.of(context).push(MaterialPageRoute(
                                       builder: (context) => OrderDetails(
-                                          taskId: task.taskId,
-                                          orderID: orders.first.id)));
+                                            arguments: OrderDetailsArguments(
+                                                taskId: task.taskId!, orderID: orders.first.id!),
+                                          )));
 
                               if (shouldReload == true) {
                                 _loadOrders(); // 🔄 reload list
@@ -178,8 +169,7 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                     child: Padding(
                                       padding: const EdgeInsets.all(0),
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           // 🔹 Header Row
                                           Padding(
@@ -188,26 +178,20 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                               children: [
                                                 CircleAvatar(
                                                   radius: 20,
-                                                  backgroundImage: NetworkImage(
-                                                      pickup.logo ?? ""),
-                                                  onBackgroundImageError:
-                                                      (_, __) {},
+                                                  backgroundImage: NetworkImage(pickup.logo ?? ""),
+                                                  onBackgroundImageError: (_, __) {},
                                                   child: pickup.logo != null ||
-                                                          pickup
-                                                              .logo!.isNotEmpty
+                                                          pickup.logo!.isNotEmpty
                                                       ? ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
+                                                          borderRadius: BorderRadius.circular(8),
                                                           child: Image.network(
                                                             pickup.logo!,
                                                             width: 50,
                                                             height: 50,
                                                             fit: BoxFit.cover,
-                                                            errorBuilder: (context,
-                                                                    error,
-                                                                    stackTrace) =>
-                                                                Image.asset(
+                                                            errorBuilder:
+                                                                (context, error, stackTrace) =>
+                                                                    Image.asset(
                                                               'assets/images/supplier.png',
                                                               fit: BoxFit.cover,
                                                             ),
@@ -223,8 +207,7 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                                   child: Text(
                                                     pickup.name ?? "",
                                                     style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
+                                                      fontWeight: FontWeight.bold,
                                                       fontSize: 16,
                                                       color: textColor,
                                                     ),
@@ -232,18 +215,12 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                                 ),
                                                 IconButton(
                                                   icon: Icon(Icons.call,
-                                                      color: isActive
-                                                          ? Colors.green
-                                                          : Colors.grey),
+                                                      color: isActive ? Colors.green : Colors.grey),
                                                   onPressed: isActive
                                                       ? () {
-                                                          final phone =
-                                                              pickup.mobile ??
-                                                                  "";
-                                                          if (phone
-                                                              .isNotEmpty) {
-                                                            launchUrl(Uri.parse(
-                                                                "tel:$phone"));
+                                                          final phone = pickup.mobile ?? "";
+                                                          if (phone.isNotEmpty) {
+                                                            launchUrl(Uri.parse("tel:$phone"));
                                                           }
                                                         }
                                                       : null,
@@ -252,40 +229,31 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                             ),
                                           ),
 
-                                          const Divider(
-                                              color: Color.fromARGB(
-                                                  255, 208, 208, 208)),
+                                          const Divider(color: Color.fromARGB(255, 208, 208, 208)),
 
                                           // 🔹 Location + Status
                                           Row(
                                             children: [
                                               Padding(
-                                                padding:
-                                                    const EdgeInsets.all(12),
+                                                padding: const EdgeInsets.all(12),
                                                 child: Container(
                                                   decoration: BoxDecoration(
                                                     color: isActive
                                                         ? Colors.grey[200]
                                                         : Colors.grey[300],
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
+                                                    borderRadius: BorderRadius.circular(8),
                                                   ),
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 4),
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 8, vertical: 4),
                                                   child: Row(
                                                     children: [
                                                       Icon(Icons.location_on,
-                                                          color: iconColor,
-                                                          size: 18),
+                                                          color: iconColor, size: 18),
                                                       const SizedBox(width: 4),
                                                       Text(
                                                         pickup.area ?? "",
                                                         style: TextStyle(
-                                                            fontSize: 14,
-                                                            color: textColor),
+                                                            fontSize: 14, color: textColor),
                                                       ),
                                                     ],
                                                   ),
@@ -295,27 +263,20 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                               if (orders.isNotEmpty)
                                                 Padding(
                                                   padding:
-                                                      const EdgeInsets.only(
-                                                          left: 12, right: 12),
+                                                      const EdgeInsets.only(left: 12, right: 12),
                                                   child: Container(
                                                     decoration: BoxDecoration(
                                                       color: boxColor,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              6),
-                                                      border: Border.all(
-                                                          color: borderColor),
+                                                      borderRadius: BorderRadius.circular(6),
+                                                      border: Border.all(color: borderColor),
                                                     ),
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 4),
+                                                    padding: const EdgeInsets.symmetric(
+                                                        horizontal: 8, vertical: 4),
                                                     child: Text(
                                                       orders.first.status ?? "",
                                                       style: TextStyle(
                                                         color: statusColor,
-                                                        fontWeight:
-                                                            FontWeight.w600,
+                                                        fontWeight: FontWeight.w600,
                                                       ),
                                                     ),
                                                   ),
@@ -324,25 +285,20 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                           ),
 
                                           // 🔹 SINGLE ORDER
-                                          if (!isMultiple &&
-                                              orders.isNotEmpty) ...[
+                                          if (!isMultiple && orders.isNotEmpty) ...[
                                             Row(
                                               children: [
                                                 Padding(
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 2),
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 12, vertical: 2),
                                                   child: Row(
                                                     mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                        MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       Text(
                                                         "Order #${orders.first.id ?? ''}",
                                                         style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w600,
+                                                            fontWeight: FontWeight.w600,
                                                             fontSize: 14,
                                                             color: textColor),
                                                       ),
@@ -358,25 +314,17 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                                 Spacer(),
                                                 Padding(
                                                   padding:
-                                                      const EdgeInsets.only(
-                                                          left: 12, right: 12),
+                                                      const EdgeInsets.only(left: 12, right: 12),
                                                   child: Container(
                                                     decoration: BoxDecoration(
                                                       color: boxColor,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              6),
-                                                      border: Border.all(
-                                                          color: Colors.green),
+                                                      borderRadius: BorderRadius.circular(6),
+                                                      border: Border.all(color: Colors.green),
                                                     ),
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 4),
+                                                    padding: const EdgeInsets.symmetric(
+                                                        horizontal: 8, vertical: 4),
                                                     child: Text(
-                                                      orders.first
-                                                              .collectionMethod ??
-                                                          "",
+                                                      orders.first.collectionMethod ?? "",
                                                       style: TextStyle(
                                                         color: Colors.green,
                                                       ),
@@ -386,14 +334,10 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                               ],
                                             ),
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 2),
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 12, vertical: 2),
                                               child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 // children: [
                                                 //   Text(orders.first.area ?? "",
                                                 //       style: TextStyle(color: textColor)),
@@ -404,52 +348,36 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                             ),
                                             if (order.referenceId != null)
                                               Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 12),
+                                                padding: const EdgeInsets.only(left: 12),
                                                 child: Container(
                                                     child: Row(
                                                   children: [
                                                     Text("Reference # ",
-                                                        style: TextStyle(
-                                                            color:
-                                                                Colors.black)),
+                                                        style: TextStyle(color: Colors.black)),
                                                     Container(
                                                         decoration: BoxDecoration(
                                                             color: boxColor,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        6),
-                                                            border: Border.all(
-                                                                color:
-                                                                    borderColor)),
+                                                            borderRadius: BorderRadius.circular(6),
+                                                            border: Border.all(color: borderColor)),
                                                         child: Padding(
-                                                          padding:
-                                                              EdgeInsetsGeometry
-                                                                  .all(08),
-                                                          child: Text(
-                                                              " ${order.referenceId} "),
+                                                          padding: EdgeInsetsGeometry.all(08),
+                                                          child: Text(" ${order.referenceId} "),
                                                         )),
                                                   ],
                                                 )),
                                               ),
                                             Padding(
                                               padding: const EdgeInsets.only(
-                                                  bottom: 12,
-                                                  left: 12,
-                                                  right: 12,
-                                                  top: 4),
+                                                  bottom: 12, left: 12, right: 12, top: 4),
                                               child: Text(
                                                 "Date: ${orders.first.day ?? ''}, ${orders.first.date ?? ''}, ${orders.first.time ?? ''}",
-                                                style:
-                                                    TextStyle(color: textColor),
+                                                style: TextStyle(color: textColor),
                                               ),
                                             ),
                                             if (orders.first.status == "Hold")
                                               Padding(
                                                 padding: EdgeInsets.symmetric(
-                                                    horizontal: 20,
-                                                    vertical: 6),
+                                                    horizontal: 20, vertical: 6),
                                                 child: SizedBox(
                                                   width: double.infinity,
                                                   child: ElevatedButton.icon(
@@ -459,19 +387,12 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                                           orders.first.id!,
                                                         );
                                                       },
-                                                      label:
-                                                          Text("Resume Order"),
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        backgroundColor:
-                                                            Colors.orange,
-                                                        foregroundColor:
-                                                            Colors.white,
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
+                                                      label: Text("Resume Order"),
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor: Colors.orange,
+                                                        foregroundColor: Colors.white,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(8),
                                                         ),
                                                       )),
                                                 ),
@@ -479,13 +400,10 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                           ],
 
                                           // 🔹 MULTIPLE ORDERS
-                                          if (isMultiple &&
-                                              orders.isNotEmpty) ...[
+                                          if (isMultiple && orders.isNotEmpty) ...[
                                             Padding(
                                               padding: const EdgeInsets.only(
-                                                  left: 12,
-                                                  right: 12,
-                                                  bottom: 4),
+                                                  left: 12, right: 12, bottom: 4),
                                               child: Text(
                                                 "Task ID #${task.taskId ?? ''}",
                                                 style: TextStyle(
@@ -496,114 +414,80 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                             ),
                                             Padding(
                                               padding: const EdgeInsets.only(
-                                                  left: 12,
-                                                  right: 12,
-                                                  bottom: 8),
+                                                  left: 12, right: 12, bottom: 8),
                                               child: Text(
                                                 "Date: ${orders.first.day ?? ''}, ${orders.first.date ?? ''}, ${orders.first.time ?? ''}",
-                                                style:
-                                                    TextStyle(color: textColor),
+                                                style: TextStyle(color: textColor),
                                               ),
                                             ),
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12),
+                                              padding: const EdgeInsets.symmetric(horizontal: 12),
                                               child: Column(
                                                 children: orders.map((order) {
-                                                  final orderActive =
-                                                      order.isActive ?? false;
+                                                  final orderActive = order.isActive ?? false;
                                                   final Color oText =
-                                                      orderActive
-                                                          ? Colors.black
-                                                          : Colors.grey;
+                                                      orderActive ? Colors.black : Colors.grey;
                                                   final Color oBox = orderActive
                                                       ? Colors.white
                                                       : Colors.grey.shade200;
                                                   final Color oBorder =
-                                                      orderActive
-                                                          ? Colors.blue
-                                                          : Colors.grey;
+                                                      orderActive ? Colors.blue : Colors.grey;
 
                                                   return GestureDetector(
                                                     onTap: () async {
-                                                      final shouldReload = await Navigator
-                                                              .of(context)
+                                                      final shouldReload = await Navigator.of(
+                                                              context)
                                                           .push(MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  OrderDetails(
-                                                                      taskId: task
-                                                                          .taskId,
-                                                                      orderID: orders
-                                                                          .first
-                                                                          .id)));
+                                                              builder: (context) => OrderDetails(
+                                                                    arguments:
+                                                                        OrderDetailsArguments(
+                                                                            taskId: task.taskId,
+                                                                            orderID:
+                                                                                orders.first.id),
+                                                                  )));
 
-                                                      if (shouldReload ==
-                                                          true) {
+                                                      if (shouldReload == true) {
                                                         _loadOrders(); // 🔄 reload list
                                                       }
                                                     },
                                                     child: Container(
-                                                      margin: const EdgeInsets
-                                                          .symmetric(
-                                                          vertical: 4),
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8),
+                                                      margin:
+                                                          const EdgeInsets.symmetric(vertical: 4),
+                                                      padding: const EdgeInsets.all(8),
                                                       decoration: BoxDecoration(
                                                         color: oBox,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8),
-                                                        border: Border.all(
-                                                            color: oBorder),
+                                                        borderRadius: BorderRadius.circular(8),
+                                                        border: Border.all(color: oBorder),
                                                       ),
                                                       child: Column(
                                                         children: [
                                                           Row(
                                                             mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
+                                                                MainAxisAlignment.spaceBetween,
                                                             children: [
                                                               Text(
                                                                 "Order #${order.id ?? ''}",
                                                                 style: TextStyle(
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                    color:
-                                                                        oText),
+                                                                    fontWeight: FontWeight.w600,
+                                                                    color: oText),
                                                               ),
                                                               Text(
-                                                                order.status ??
-                                                                    "",
+                                                                order.status ?? "",
                                                                 style: TextStyle(
-                                                                    color:
-                                                                        oBorder,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600),
+                                                                    color: oBorder,
+                                                                    fontWeight: FontWeight.w600),
                                                               ),
                                                             ],
                                                           ),
-                                                          const SizedBox(
-                                                              height: 6),
+                                                          const SizedBox(height: 6),
                                                           Row(
                                                             mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
+                                                                MainAxisAlignment.spaceBetween,
                                                             children: [
-                                                              Text(
-                                                                  order.area ??
-                                                                      "",
-                                                                  style: TextStyle(
-                                                                      color:
-                                                                          oText)),
-                                                              Text(
-                                                                  "${order.amount ?? 0} KWD",
-                                                                  style: TextStyle(
-                                                                      color:
-                                                                          oText)),
+                                                              Text(order.area ?? "",
+                                                                  style: TextStyle(color: oText)),
+                                                              Text("${order.amount ?? 0} KWD",
+                                                                  style: TextStyle(color: oText)),
                                                             ],
                                                           ),
                                                         ],
@@ -624,11 +508,9 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                       child: ClipRRect(
                                         borderRadius: BorderRadius.circular(12),
                                         child: BackdropFilter(
-                                          filter: ImageFilter.blur(
-                                              sigmaX: 2, sigmaY: 2),
+                                          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                                           child: Container(
-                                            color:
-                                                Colors.white.withOpacity(0.1),
+                                            color: Colors.white.withOpacity(0.1),
                                           ),
                                         ),
                                       ),
@@ -642,8 +524,7 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                         child: Center(
                                             child: ElevatedButton(
                                                 onPressed: () {
-                                                  provider
-                                                      .messageaccepted(false);
+                                                  provider.messageaccepted(false);
                                                 },
                                                 child: Text("data")))),
                                   if (task.isAcknowledged == false)
@@ -661,17 +542,15 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                         },
                                         child: ElevatedButton(
                                           style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 14),
+                                            padding: const EdgeInsets.symmetric(vertical: 14),
                                             backgroundColor: ColorTheme().green,
                                             shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
+                                              borderRadius: BorderRadius.circular(10),
                                             ),
                                           ),
-                                          onPressed: () async{
-                                             await stopNotificationSound();
-                                             DriverBackgroundService.stopAlert();
+                                          onPressed: () async {
+                                            await stopNotificationSound();
+                                            DriverBackgroundService.stopAlert();
                                             getCurrentLocation(
                                               task.taskId,
                                             );
@@ -680,16 +559,14 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                               ? const SizedBox(
                                                   height: 20,
                                                   width: 20,
-                                                  child:
-                                                      CircularProgressIndicator(
+                                                  child: CircularProgressIndicator(
                                                     color: Colors.white,
                                                     strokeWidth: 2,
                                                   ),
                                                 )
                                               : const Text(
                                                   "Accept",
-                                                  style: TextStyle(
-                                                      color: Colors.white),
+                                                  style: TextStyle(color: Colors.white),
                                                 ),
                                         ),
                                       ),
@@ -715,8 +592,7 @@ class _OrdersListScreenState extends State<OrdersListScreen>
         isloading = true;
       });
 
-      final data =
-          await _orderlistcontroller.callResumeOrderApi(context, orderId);
+      final data = await _orderlistcontroller.callResumeOrderApi(context, orderId);
       if (data != null) {
         setState(() {
           isloading = false;
@@ -740,8 +616,7 @@ class _OrdersListScreenState extends State<OrdersListScreen>
     getOrders();
   }
 
-  Future<void> callAcknowledgmentApi(
-      int taskID, double latitude, double longitude) async {
+  Future<void> callAcknowledgmentApi(int taskID, double latitude, double longitude) async {
     try {
       setState(() {
         isloading = true;
@@ -749,8 +624,8 @@ class _OrdersListScreenState extends State<OrdersListScreen>
       AcknowledgementReq acknowledgementReq = AcknowledgementReq();
       acknowledgementReq.lat = latitude;
       acknowledgementReq.long = longitude;
-      final data = await _orderlistcontroller.callAcknowledgmentApi(
-          context, taskID, acknowledgementReq);
+      final data =
+          await _orderlistcontroller.callAcknowledgmentApi(context, taskID, acknowledgementReq);
       if (data != null) {
         setState(() {
           isloading = false;

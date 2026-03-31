@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:debs_driver_app/Utils/color.dart';
+import 'package:debs_driver_app/core/infrastructure/clients/http_client.dart';
+import 'package:debs_driver_app/core/infrastructure/injection/injection_setup.dart';
 import 'package:debs_driver_app/home/homescreen.dart';
 import 'package:debs_driver_app/login/controller/login_controller.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +33,7 @@ void _login() async {
     setState(() => _loading = true);
 
     try { 
-      String? playerID = OneSignal.User.pushSubscription.id;
+      String? playerID = await OneSignal.User.getOnesignalId();
 
       print("Player ID: $playerID");
 
@@ -43,11 +45,13 @@ void _login() async {
 
       if (response?.status ?? false) {
         final SharedPreferences prefs = await SharedPreferences.getInstance();
+        final token =response!.data!.accessToken;
         await prefs.setString('username', username);
         await prefs.setString('password', password);
-        await prefs.setString('logindata', jsonEncode(response!.toJson()));
-        await prefs.setString('token', response.data!.accessToken.toString());
+        await prefs.setString('logindata', jsonEncode(response.toJson()));
+        await prefs.setString('token',token );
         await prefs.setInt('driverID', response.data!.driverId);
+        getIt<HttpApiClient>().updateToken(token);
 
         clearTextfiled();
 

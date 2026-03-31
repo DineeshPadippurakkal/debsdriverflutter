@@ -74,7 +74,6 @@ class _ShiftScheckinScreenState extends State<ShiftScheckinScreen> {
 //             // handle error
 //         }
 //     })
-
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 245, 244, 244),
       // appBar: AppBar(automaticallyImplyLeading: false),

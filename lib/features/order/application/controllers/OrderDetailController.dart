@@ -4,12 +4,12 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:debs_driver_app/Utils/Utils.dart';
-import 'package:debs_driver_app/orderdetail/model/CommonResponse.dart';
-import 'package:debs_driver_app/orderdetail/model/DropOrderRequest.dart';
-import 'package:debs_driver_app/orderdetail/model/HoldOrderReasonResponse.dart';
-import 'package:debs_driver_app/orderdetail/model/HoldOrderRequest.dart';
-import 'package:debs_driver_app/orderdetail/model/HoldOrderResponse.dart';
-import 'package:debs_driver_app/orderdetail/model/OrderDetailsResponse.dart';
+import 'package:debs_driver_app/temp/CommonResponse.dart';
+import 'package:debs_driver_app/temp/DropOrderRequest.dart';
+import 'package:debs_driver_app/features/order/domain/entities/hold_order_reason.dart';
+import 'package:debs_driver_app/temp/HoldOrderRequest.dart';
+import 'package:debs_driver_app/temp/HoldOrderResponse.dart';
+import 'package:debs_driver_app/features/order/domain/entities/order_details.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -36,6 +36,8 @@ class Orderdetailcontroller {
       print(token);
       log(url.toString());
       log('this is the status code ${response.body}');
+      // return Future.value(OrderDetailResponse.mock());
+
       if (response.statusCode == 200) {
         return OrderDetailResponse.fromJson(jsonDecode(response.body));
       } else {

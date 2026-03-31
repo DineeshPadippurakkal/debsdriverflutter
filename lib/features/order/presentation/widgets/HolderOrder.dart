@@ -1,8 +1,8 @@
 import 'package:debs_driver_app/Utils/color.dart';
-import 'package:debs_driver_app/orderdetail/controller/OrderDetailController.dart';
-import 'package:debs_driver_app/orderdetail/model/HoldOrderReasonResponse.dart';
-import 'package:debs_driver_app/orderdetail/model/HoldOrderRequest.dart';
-import 'package:debs_driver_app/orderdetail/model/HoldOrderResponse.dart';
+import 'package:debs_driver_app/features/order/application/controllers/OrderDetailController.dart';
+import 'package:debs_driver_app/features/order/domain/entities/hold_order_reason.dart';
+import 'package:debs_driver_app/temp/HoldOrderRequest.dart';
+import 'package:debs_driver_app/temp/HoldOrderResponse.dart';
 import 'package:flutter/material.dart';
 
 class Holderorder extends StatefulWidget {
