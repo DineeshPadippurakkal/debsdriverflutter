@@ -4,6 +4,7 @@ import 'package:debs_driver_app/Utils/Utils.dart';
 import 'package:debs_driver_app/checkin/model/CheckinResponse.dart';
 import 'package:debs_driver_app/home/model/LogoutResponse.dart';
 import 'package:debs_driver_app/home/model/ShiftResponse.dart';
+import 'package:geolocator/geolocator.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -36,8 +37,11 @@ class Shiftlistcontroller {
   Future<CheckinResponse?> callCheckin(int slotID, int shiftID) async {
     final url = Uri.parse("$baseUrl/driver/shifts/$shiftID/check-in");
     String? token = await Utils().getToken();
+// get location using geolocator package and pass the lat and long in the body of the request
 
     try {
+      final currentLocation = await Geolocator.getCurrentPosition();
+
       final response = await http.post(
         url,
         headers: {
@@ -46,8 +50,8 @@ class Shiftlistcontroller {
         },
         body: jsonEncode({
           "slot_id": slotID,
-          "latitude": 10.3951032,
-          "longitude": 76.1015804,
+          "latitude": currentLocation.latitude,
+          "longitude": currentLocation.longitude,
         }),
       );
 

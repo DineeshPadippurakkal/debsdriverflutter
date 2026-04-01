@@ -11,6 +11,7 @@ import 'package:debs_driver_app/core/presentation/widgets/state_widgets.dart';
 import 'package:debs_driver_app/features/order/application/controllers/order_details_bloc/order_details_bloc.dart';
 import 'package:debs_driver_app/features/order/application/order_details_args.dart';
 import 'package:debs_driver_app/features/order/presentation/overlay/delivery_proof_dialog.dart';
+import 'package:debs_driver_app/features/order/presentation/pages/signature_proof_page.dart';
 import 'package:debs_driver_app/features/order/presentation/widgets/DeliveryTimerWidget.dart';
 import 'package:debs_driver_app/features/order/presentation/widgets/HolderOrder.dart';
 import 'package:debs_driver_app/features/order/presentation/widgets/PickupTimer.dart';
@@ -68,7 +69,6 @@ class _OrderDetailsState extends State<_OrderDetails> implements OrderDetailsVie
   }
 
   XFile? deliveryImage;
-
 
   bool isloading = false;
   @override
@@ -249,11 +249,28 @@ class PremiumOrderDetails extends StatelessWidget {
       height: 50,
       child: TextButton.icon(
         onPressed: () {
-          showDialog(context: context, builder: (context) {
-            return DeliveryProofDialog(onTap: () {
-
-            }, image:  );
-          },);
+          final bloc = context.read<OrderDetailsBloc>();
+          showDialog(
+            context: context,
+            builder: (context) {
+              return DeliveryProofPickerDialog(
+                  onConfirm: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => SignatureProofPage(
+                                onConfirmed: (file) {
+                                  bloc.add(SignatureProofPicked(file));
+                                },
+                              )), // Ensure this name matches exactly
+                    );
+                  },
+                  onChanged: (image) {
+                    bloc.add(DeliveryProofPicked(image));
+                  },
+                  image: bloc.state.deliveryProof.toNullable());
+            },
+          );
           // context.read<OrderDetailsBloc>().add(OrderDropped());
         },
         style: TextButton.styleFrom(
@@ -512,7 +529,7 @@ class PremiumOrderDetails extends StatelessWidget {
                 children: [
                   _iconAction(
                     Icons.phone,
-                    Colors.green,
+                    Colors.blue,
                     onTap: () {
                       getIt<UrlLauncherService>()
                           .launch(Uri(scheme: 'tel', path: phone.toString()));
@@ -520,8 +537,8 @@ class PremiumOrderDetails extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   _iconAction(
-                    Icons.chat_bubble,
-                    Colors.blueAccent,
+                    FontAwesomeIcons.whatsapp.data,
+                    Colors.green,
                     onTap: () {
                       getIt<WhatsappService>().openWhatsapp(phone);
                     },

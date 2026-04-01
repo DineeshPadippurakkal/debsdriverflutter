@@ -15,15 +15,13 @@ abstract class OrdersRepo {
 
   Future<Either<AppException, List<HoldOrderReason>>> getHoldOrderReasons();
 
-  Future<Either<AppException, Unit>> dropOrder(int orderID);
 
-  Future<Either<AppException, Unit>> dropOrderWithAmount(int orderID, double amountDueOnDelivery);
 
   Future<Either<AppException, Unit>> reachLocation(int orderID, int taskId);
 
   Future<Either<AppException, Unit>> pickupOrder(int orderID, int taskId);
 
-  Future<Either<AppException, Unit>> dropOrderWithProof(DropOrderDto dto);
+  Future<Either<AppException, Unit>> dropOrder(DropOrderDto dto);
 
   Future<Either<AppException, File>> pickImageAndCompress();
 }

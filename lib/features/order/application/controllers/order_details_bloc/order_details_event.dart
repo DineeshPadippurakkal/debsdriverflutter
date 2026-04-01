@@ -56,3 +56,11 @@ class DeliveryProofPicked extends OrderDetailsEvent {
   @override
   List<Object> get props => [proof];
 }
+
+class SignatureProofPicked extends OrderDetailsEvent {
+  final File proof;
+
+  const SignatureProofPicked(this.proof);
+  @override
+  List<Object> get props => [proof];
+}

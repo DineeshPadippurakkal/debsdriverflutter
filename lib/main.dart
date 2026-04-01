@@ -268,6 +268,7 @@ class _MyAppState extends State<MyApp> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Geolocator.getCurrentPosition().then((value) => print('latitud is ${value.latitude} and long ${value.longitude}'),);
     return MaterialApp(
       scaffoldMessengerKey: OverlayManager.instance.scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,

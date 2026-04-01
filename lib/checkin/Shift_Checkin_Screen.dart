@@ -34,6 +34,7 @@ class _ShiftScheckinScreenState extends State<ShiftScheckinScreen> {
   bool isCheckinApiCall = false;
   Future<void> getShiftList(String date) async {
     try {
+      print('fetching shift list for date: $date');
       setState(() {
         isloading = true;
       });

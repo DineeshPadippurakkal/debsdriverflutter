@@ -20,6 +20,7 @@ import '../../../features/order/infrastructure/repos/orders_repo_impl.dart'
     as _i554;
 import '../clients/http_client.dart' as _i400;
 import '../clients/shared_pref/shared_pref_local_client.dart' as _i996;
+import '../services/server_uploader_service.dart' as _i346;
 import '../services/url_launcher_service.dart' as _i140;
 import '../services/whatsapp_service.dart' as _i397;
 
@@ -47,10 +48,14 @@ extension GetItInjectableX on _i174.GetIt {
       },
       preResolve: true,
     );
+    gh.lazySingleton<_i346.ServerUploaderService>(
+        () => _i346.ServerUploaderService(gh<_i400.HttpApiClient>()));
     gh.lazySingleton<_i140.UrlLauncherService>(
         () => _i140.UrlLauncherServiceImpl());
-    gh.lazySingleton<_i890.OrdersRepo>(
-        () => _i554.OrdersRepoImpl(gh<_i400.HttpApiClient>()));
+    gh.lazySingleton<_i890.OrdersRepo>(() => _i554.OrdersRepoImpl(
+          gh<_i400.HttpApiClient>(),
+          gh<_i346.ServerUploaderService>(),
+        ));
     gh.factoryParam<_i16.OrderDetailsBloc, _i655.OrderDetailsArguments,
         dynamic>((
       arguments,

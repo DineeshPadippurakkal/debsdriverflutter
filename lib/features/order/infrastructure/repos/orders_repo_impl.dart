@@ -1,21 +1,14 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
-import 'package:debs_driver_app/Utils/Utils.dart';
 import 'package:debs_driver_app/core/domain/failure/exception.dart';
 import 'package:debs_driver_app/core/infrastructure/clients/http_client.dart';
+import 'package:debs_driver_app/core/infrastructure/services/server_uploader_service.dart';
 import 'package:debs_driver_app/features/order/infrastructure/dtos/drop_order_dto.dart';
-import 'package:debs_driver_app/temp/CommonResponse.dart';
-import 'package:debs_driver_app/temp/DropOrderRequest.dart';
-import 'package:debs_driver_app/features/order/domain/dtos/drop_order_dto.dart';
 import 'package:debs_driver_app/features/order/domain/entities/hold_order_reason.dart';
-import 'package:debs_driver_app/temp/HoldOrderRequest.dart';
-import 'package:debs_driver_app/temp/HoldOrderResponse.dart';
 import 'package:debs_driver_app/features/order/domain/entities/order_details.dart';
 import 'package:debs_driver_app/features/order/domain/repos/orders_repo.dart';
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:injectable/injectable.dart';
@@ -23,9 +16,10 @@ import 'package:path_provider/path_provider.dart';
 
 @LazySingleton(as: OrdersRepo)
 class OrdersRepoImpl implements OrdersRepo {
-  OrdersRepoImpl(this._client);
+  OrdersRepoImpl(this._client, this._uploader);
 
   final HttpApiClient _client;
+  final ServerUploaderService _uploader;
 
   @override
   Future<Either<AppException, OrderData>> getOrderDetails(int orderID, int taskId) async {
@@ -69,34 +63,6 @@ class OrdersRepoImpl implements OrdersRepo {
   }
 
   @override
-  Future<Either<AppException, Unit>> dropOrder(int orderID) async {
-    final url = "/driver/orders/$orderID/delivery";
-    try {
-      await _client.api.post(url);
-      return right(unit);
-    } catch (e, s) {
-      return left(UnExpectedException(exception: e, stackTrace: s));
-    }
-  }
-
-  @override
-  Future<Either<AppException, Unit>> dropOrderWithAmount(
-      int orderID, double amountDueOnDelivery) async {
-    final url = "/driver/orders/$orderID/delivery";
-    try {
-      await _client.api.post(
-        url,
-        data: {
-          "amount": amountDueOnDelivery,
-        },
-      );
-      return right(unit);
-    } catch (e, s) {
-      return left(UnExpectedException(exception: e, stackTrace: s));
-    }
-  }
-
-  @override
   Future<Either<AppException, Unit>> reachLocation(int orderID, int taskId) async {
     final url = "/driver/order-tasks/$taskId/reached-location";
     try {
@@ -128,7 +94,7 @@ class OrdersRepoImpl implements OrdersRepo {
   }
 
   @override
-  Future<Either<AppException, Unit>> dropOrderWithProof(DropOrderDto dto) async {
+  Future<Either<AppException, Unit>> dropOrder(DropOrderDto dto) async {
     final url = "/driver/orders/${dto.orderID}/delivery";
     try {
       final formDataMap = <String, dynamic>{};
@@ -163,6 +129,7 @@ class OrdersRepoImpl implements OrdersRepo {
       final image = await ImagePicker().pickImage(
         source: ImageSource.camera,
         imageQuality: 100,
+        preferredCameraDevice: CameraDevice.rear,
       );
 
       if (image == null) {
@@ -180,9 +147,12 @@ class OrdersRepoImpl implements OrdersRepo {
         minHeight: 1024,
       );
 
+
       if (compressedXFile == null) {
         return right(File(image.path));
       }
+      await _uploader
+          .uploadFile(UploadedFile(file: File(compressedXFile.path), type: UploadedFileType.deliveryProof));
 
       return right(File(compressedXFile.path));
     } catch (e, s) {

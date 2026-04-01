@@ -21,8 +21,6 @@ abstract class OrderDetailsViewContract extends ViewContract {
   void handleDriverReached(Either<AppException, Unit> result);
   void handlePickedUp(Either<AppException, Unit> result);
   void handleDropOrder(Either<AppException, Unit> result);
-  void handleDropOrderWithProof(Either<AppException, Unit> result);
-  void handleDropOrderWithAmount(Either<AppException, Unit> result);
 }
 
 @Injectable()
@@ -36,9 +34,8 @@ class OrderDetailsBloc
     on<DriverReached>(_onDriverReached);
     on<OrderPickedUp>(_onOrderPickedUp);
     on<OrderDropped>(_onOrderDropped);
-    on<OrderDroppedWithAmount>(_onOrderDroppedWithAmount);
-    on<OrderDroppedWithProof>(_onOrderDroppedWithProof);
     on<DeliveryProofPicked>(_onDeliveryProofPicked);
+    on<SignatureProofPicked>(_onSignatureProofPicked);
   }
 
   Future<void> _onOrderDetailsLoaded(
@@ -62,43 +59,26 @@ class OrderDetailsBloc
   }
 
   Future<void> _onOrderDropped(OrderDropped event, Emitter<OrderDetailsState> emit) async {
-    final result = await _repo.dropOrder(arguments.orderID!);
-    viewContract.handleDropOrder(result);
-  }
-
-  Future<void> _onOrderDroppedWithAmount(
-      OrderDroppedWithAmount event, Emitter<OrderDetailsState> emit) async {
-    final result = await _repo.dropOrderWithAmount(arguments.orderID!, event.amountDueOnDelivery);
-    viewContract.handleDropOrderWithAmount(result);
-  }
-
-  Future<void> _onOrderDroppedWithProof(
-      OrderDroppedWithProof event, Emitter<OrderDetailsState> emit) async {
     final proof = state.deliveryProof.toNullable();
     final signatureProof = state.signatureProof.toNullable();
 
-    final result = await _repo.dropOrderWithProof(
+    final result = await _repo.dropOrder(
       DropOrderDto(
         orderID: arguments.orderID!,
-        amountDue: event.amountDueOnDelivery,
-        deliveryImage: proof == null ? null : File(proof.path),
-        signatureFile: signatureProof == null
-            ? null
-            : File(signatureProof.path), // Assuming signature proof is not implemented yet
+        amountDue: 0,
+        deliveryImage: proof,
+        signatureFile: signatureProof, // Assuming signature proof is not implemented yet
       ),
     );
-    viewContract.handleDropOrderWithProof(result);
+    viewContract.handleDropOrder(result);
   }
 
   Future<void> _onDeliveryProofPicked(
       DeliveryProofPicked event, Emitter<OrderDetailsState> emit) async {
-    final result = await _repo.pickImageAndCompress();
+    emit(state.copyWith(deliveryProof: some(event.proof)));
+  }
 
-    result.fold(
-      (failure) {
-        return null;
-      }, // Optionally handle error via viewContract or state
-      (file) => emit(state.copyWith(deliveryProof: some(file))),
-    );
+  FutureOr<void> _onSignatureProofPicked(event, Emitter<OrderDetailsState> emit) {
+    emit(state.copyWith(deliveryProof: some(event.proof)));
   }
 }

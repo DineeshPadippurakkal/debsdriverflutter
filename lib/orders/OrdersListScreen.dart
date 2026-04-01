@@ -5,7 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:debs_driver_app/Utils/color.dart';
 import 'package:debs_driver_app/features/order/application/order_details_args.dart';
 import 'package:debs_driver_app/notification/driver_background_service.dart';
-import 'package:debs_driver_app/features/order/presentation/pages/OrderDetails.dart';
+import 'package:debs_driver_app/features/order/presentation/pages/order_details_page.dart';
 import 'package:debs_driver_app/orders/AcknowledgementReq.dart';
 import 'package:debs_driver_app/orders/OrderListController.dart';
 import 'package:debs_driver_app/orders/OrderListResponse.dart';
