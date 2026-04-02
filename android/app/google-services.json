@@ -46,6 +46,25 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:764917381704:android:c62ad3e1ab55cbd242b67d",
+        "android_client_info": {
+          "package_name": "com.debs.driver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNxShchTSkiav83fG18NkPgzwMRfxyvjE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:764917381704:android:d770bb341f3f230042b67d",
         "android_client_info": {
           "package_name": "com.example.debs_driver_app"

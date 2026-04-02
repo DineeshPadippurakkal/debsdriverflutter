@@ -1,6 +1,7 @@
 
 import 'package:debs_driver_app/ChangePassword/view/ChangePasswordScreen.dart';
 import 'package:debs_driver_app/OrderHistory/view/OrderHistory.dart';
+import 'package:debs_driver_app/Utils/Utils.dart';
 import 'package:debs_driver_app/Utils/color.dart';
 import 'package:debs_driver_app/Utils/sqldata.dart';
 import 'package:debs_driver_app/controller/ShiftListController.dart';
@@ -107,6 +108,8 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
       );
     }
 
+ String? driverId =   Utils().getDriverID().toString();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -160,6 +163,8 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                   ),
                 ),
               ),
+
+              
               accountName: Text(
                 profileData == null
                     ? "Loading..."
@@ -176,9 +181,9 @@ class _HomescreenState extends State<Homescreen> with TickerProviderStateMixin {
                     profileData?.email ?? "",
                     style: const TextStyle(fontSize: 14),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 4), 
                   Text(
-                    profileData == null ? "" : "Driver ID: ${profileData.id}",
+                    profileData == null ? "" : "Driver ID: ${driverId}",
                     style: const TextStyle(fontSize: 14),
                   ),
                 ],

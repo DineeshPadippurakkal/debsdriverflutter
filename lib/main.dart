@@ -138,43 +138,57 @@ Future<void> initializeService() async {
 
   await service.startService();
 }
-
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
-  await Firebase.initializeApp();
-  final database = FirebaseDatabase.instance;
-
   DartPluginRegistrant.ensureInitialized();
 
-  if (service is AndroidServiceInstance) {
-    service.on('stopService').listen((event) {
-      service.stopSelf();
-    });
-  }
+  await Firebase.initializeApp();
 
   final prefs = await SharedPreferences.getInstance();
   final driverID = prefs.getInt('driverID');
 
-  // Runs every 15 seconds
+  if (driverID == null) {
+    log("❌ driverID is null");
+    return;
+  }
+
+  // 🔥 Permission check INSIDE background
+  LocationPermission permission = await Geolocator.checkPermission();
+
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+  }
+
+  if (permission == LocationPermission.deniedForever) {
+    log("❌ Location permission denied forever");
+    return;
+  }
+
   Timer.periodic(const Duration(seconds: 15), (timer) async {
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-    final uniqueID = const Uuid().v4();
-     final createdAt =
-        DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now());
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
 
-    DatabaseReference ref =
-        FirebaseDatabase.instance.ref("drivers-location/") .child(driverID.toString())
-        .child(uniqueID);
+      final uniqueID = const Uuid().v4();
+      final createdAt =
+          DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now());
 
-    await ref.set({
-      "latitude": position.latitude,
-      "longitude": position.longitude,
-      "createdAt": createdAt,
-    });
+      DatabaseReference ref = FirebaseDatabase.instance
+          .ref("drivers-location")
+          .child(driverID.toString())
+          .child(uniqueID);
 
-    log("📍 Location Updated: ${position.latitude}, ${position.longitude}");
+      await ref.set({
+        "createdAt": createdAt,
+        "lat": position.latitude,
+        "long": position.longitude,
+      });
+
+      log("📍 Location Updated: ${position.latitude}, ${position.longitude}");
+    } catch (e) {
+      log("❌ ERROR: $e");
+    }
   });
 }
 
