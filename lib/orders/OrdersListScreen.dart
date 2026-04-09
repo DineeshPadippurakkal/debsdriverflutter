@@ -127,11 +127,13 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                       itemBuilder: (context, index) {
                         final task = response!.data!.tasks![index];
 
-                        final order = response!.data!.tasks![0].orders![index];
+                        final orders = task.orders ?? [];
+                        final order = orders.isNotEmpty ? orders.first : null;
+
                         final pickup = task.pickupDetails!;
                         final isActive = task.isActive ?? false;
                         final isMultiple = task.isMultiple ?? false;
-                        final orders = task.orders ?? [];
+
                         // 🔹 Define color palette based on active/inactive state
                         final Color textColor =
                             isActive ? Colors.black : Colors.grey;
@@ -402,7 +404,7 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                                 // ],
                                               ),
                                             ),
-                                            if (order.referenceId != null)
+                                            if (order!.referenceId != null)
                                               Padding(
                                                 padding: const EdgeInsets.only(
                                                     left: 12),
@@ -669,9 +671,9 @@ class _OrdersListScreenState extends State<OrdersListScreen>
                                                   BorderRadius.circular(10),
                                             ),
                                           ),
-                                          onPressed: () async{
-                                             await stopNotificationSound();
-                                             DriverBackgroundService.stopAlert();
+                                          onPressed: () async {
+                                            await stopNotificationSound();
+                                            DriverBackgroundService.stopAlert();
                                             getCurrentLocation(
                                               task.taskId,
                                             );

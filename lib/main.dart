@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:ui';
-import 'package:debs_driver_app/notification/DriverAlertScreen.dart';
 import 'package:intl/intl.dart';
 
 import 'notification/driver_background_service.dart';
@@ -74,7 +73,14 @@ Future<void> main() async {
 
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   OneSignal.initialize("e7cb9d5b-e1b0-4c51-ad97-3658289aeb5e");
-  await OneSignal.Notifications.requestPermission(true);
+
+  OneSignal.Notifications.addForegroundWillDisplayListener((event) {
+    print("🔥 Notification received");
+  });
+
+  // await OneSignal.Notifications.requestPermission(true);
+
+ 
 
   OneSignal.User.pushSubscription.addObserver((state) {
     final id = state.current.id;
@@ -138,6 +144,7 @@ Future<void> initializeService() async {
 
   await service.startService();
 }
+
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
